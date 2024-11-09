@@ -91,9 +91,9 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[url('/image.jpg')] bg-cover bg-center">
-      <Card className="mx-auto w-104 bg-black bg-opacity-0 p-4 rounded-lg shadow-lg">
+      <Card className="mx-auto w-104 bg-black bg-opacity-50 p-4 rounded-lg shadow-lg">
         <CardHeader className="text-center">
-          <h2 className={title({ color: "blue" })}>Sports League System</h2>
+          <h2 className={title({ color: "violet" })}>Sports League System</h2>
         </CardHeader>
         <CardBody>
           <form className="grid gap-2" onSubmit={handleSignUp}>
@@ -144,8 +144,10 @@ const SignUpPage: React.FC = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <SelectItem key="user" value="user">Player</SelectItem>
-                <SelectItem key="admin" value="admin">Manager</SelectItem>
+                <SelectItem key="player" value="player">Player</SelectItem>
+                <SelectItem key="teammanager" value="teammanager">Team Manager</SelectItem>
+                <SelectItem key="leaguemanager" value="leaguemanager">League Manager</SelectItem>
+                <SelectItem key="admin" value="admin">Admin</SelectItem>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">

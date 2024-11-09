@@ -16,7 +16,7 @@ function Home() {
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <div className="inline-block max-w-xl text-center justify-center">
         <span className={title()}>Unlock the power of </span>
-        <span className={title({ color: "green" })}>Web app name</span>
+        <span className={title({ color: "blue" })}>Sports League Management System</span>
         <br />
         <span className={title()}>
           txt text text ext

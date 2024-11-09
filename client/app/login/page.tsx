@@ -60,9 +60,9 @@ export const description =
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[url('/image.jpg')] bg-cover bg-center">
-      <Card className="mx-auto w-96 bg-black bg-opacity-30 p-6 rounded-lg shadow-lg">
+      <Card className="mx-auto w-96 bg-black bg-opacity-50 p-6 rounded-lg shadow-lg">
         <CardHeader className="text-center">
-          <h2 className={title({ color: "blue" })}>Sports League System</h2>
+          <h2 className={title({ color: "violet" })}>Sports League System</h2>
         </CardHeader>
         <CardBody>
           <form className="grid gap-4" onSubmit={handleLogin}>
