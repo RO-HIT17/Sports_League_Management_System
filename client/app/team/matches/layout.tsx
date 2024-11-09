@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function DashBoardTeamsLayout({
+export default function MatchesTeamsLayout({
   children,
 }: {
   children: React.ReactNode;

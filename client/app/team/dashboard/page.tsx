@@ -15,7 +15,7 @@ import {
 const Leaderboard = () => {
   const teamId = 1; // Replace with the actual team ID managed by the team manager
   const [teams, setTeams] = useState([]);
-  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [players, setPlayers] = useState([]);
 
   useEffect(() => {
     // Mock data for teams
@@ -27,44 +27,32 @@ const Leaderboard = () => {
       // Add more teams as needed
     ];
 
-    // Mock data for upcoming matches
-    const matchesData = [
-      {
-        match_id: 1,
-        match_date: '2023-10-20',
-        home_team_id: 1,
-        home_team_name: 'Eagles FC',
-        away_team_id: 2,
-        away_team_name: 'Tigers FC',
-        location: 'Stadium A',
-      },
-      {
-        match_id: 2,
-        match_date: '2023-10-25',
-        home_team_id: 3,
-        home_team_name: 'Lions FC',
-        away_team_id: 1,
-        away_team_name: 'Eagles FC',
-        location: 'Stadium B',
-      },
-      // Add more matches as needed
+    // Mock data for players
+    const playersData = [
+      { player_id: 1, player_name: 'John Doe', position: 'Forward', age: 25 },
+      { player_id: 2, player_name: 'Jane Smith', position: 'Midfielder', age: 22 },
+      { player_id: 3, player_name: 'Mike Johnson', position: 'Defender', age: 28 },
+      { player_id: 4, player_name: 'Alice Brown', position: 'Goalkeeper', age: 24 },
+      { player_id: 5, player_name: 'Bob White', position: 'Forward', age: 27 },
+      // Add more players as needed
     ];
 
-    // Filter upcoming matches for the current team
-    const filteredMatches = matchesData.filter(
-      (match) => match.home_team_id === teamId || match.away_team_id === teamId
+    // Filter players for the current team
+    const filteredPlayers = playersData.filter(
+      (player) => /* Add condition if players are associated with teams */
+      true // Replace with actual condition if applicable
     );
 
     // Set state with mock data
     setTeams(teamsData);
-    setUpcomingMatches(filteredMatches);
+    setPlayers(filteredPlayers);
   }, [teamId]);
 
   return (
     <div style={{ padding: '16px' }}>
       {/* Leaderboard */}
-      <Card style={{ marginBottom: '16px' }}>
-        <CardHeader style={{ fontSize: '24px' }}>
+      <Card style={{ marginBottom: '24px' }}>
+        <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Leaderboard</h3>
         </CardHeader>
         <CardBody>
@@ -80,20 +68,27 @@ const Leaderboard = () => {
                 <TableColumn>Losses</TableColumn>
                 <TableColumn>Points</TableColumn>
               </TableHeader>
-            <TableBody>
-                {teams.map((team, index) => (
+              <TableBody>
+                {teams
+                  .sort((a, b) => b.points - a.points)
+                  .map((team, index) => (
                     <TableRow
-                        key={team.team_id}
-                        style={{ backgroundColor: index === 0 ? 'rgba(72, 187, 120, 0.2)' : 'transparent' }}
+                      key={team.team_id}
+                      style={{
+                        backgroundColor:
+                          team.team_id === teamId
+                            ? 'rgba(72, 187, 120, 0.2)'
+                            : 'transparent',
+                      }}
                     >
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{team.team_name}</TableCell>
-                        <TableCell>{team.wins}</TableCell>
-                        <TableCell>{team.losses}</TableCell>
-                        <TableCell>{team.points}</TableCell>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{team.team_name}</TableCell>
+                      <TableCell>{team.wins}</TableCell>
+                      <TableCell>{team.losses}</TableCell>
+                      <TableCell>{team.points}</TableCell>
                     </TableRow>
-                ))}
-            </TableBody>
+                  ))}
+              </TableBody>
             </Table>
           ) : (
             <p>No teams found.</p>
@@ -101,41 +96,34 @@ const Leaderboard = () => {
         </CardBody>
       </Card>
 
-      {/* Upcoming Matches */}
+      {/* Players */}
       <Card>
-        <CardHeader style={{ fontSize: '24px' }}>
-          <h3>Upcoming Matches</h3>
+        <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
+          <h3>Players</h3>
         </CardHeader>
         <CardBody>
-          {upcomingMatches.length > 0 ? (
+          {players.length > 0 ? (
             <Table
-              aria-label="Upcoming Matches"
+              aria-label="Players"
               css={{ height: 'auto', minWidth: '100%' }}
             >
               <TableHeader>
-                <TableColumn>Date</TableColumn>
-                <TableColumn>Opponent</TableColumn>
-                <TableColumn>Location</TableColumn>
+                <TableColumn>Player Name</TableColumn>
+                <TableColumn>Position</TableColumn>
+                <TableColumn>Age</TableColumn>
               </TableHeader>
               <TableBody>
-                {upcomingMatches.map((match) => {
-                  const opponent =
-                    match.home_team_id === teamId
-                      ? match.away_team_name
-                      : match.home_team_name;
-
-                  return (
-                    <TableRow key={match.match_id}>
-                      <TableCell>{match.match_date}</TableCell>
-                      <TableCell>{opponent}</TableCell>
-                      <TableCell>{match.location}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {players.map((player) => (
+                  <TableRow key={player.player_id}>
+                    <TableCell>{player.player_name}</TableCell>
+                    <TableCell>{player.position}</TableCell>
+                    <TableCell>{player.age}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           ) : (
-            <p>No upcoming matches.</p>
+            <p>No players found.</p>
           )}
         </CardBody>
       </Card>
