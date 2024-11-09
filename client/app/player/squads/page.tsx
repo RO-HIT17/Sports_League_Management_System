@@ -13,97 +13,93 @@ import {
 } from '@nextui-org/react';
 
 const SquadView = () => {
-  const teamId = 1; // Replace with actual team ID
-  const [teamInfo, setTeamInfo] = useState(null);
-  const [players, setPlayers] = useState([]);
+  const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
-    // Mock data for team
-    const teamData = {
-      team_id: 1,
-      team_name: 'Eagles FC',
-      coach_name: 'Coach Smith',
-    };
-
-    // Mock data for players
-    const playersData = [
+    // Mock data for leagues, teams, and players
+    const leagueData = [
       {
-        player_id: 1,
-        player_name: 'John Doe',
-        position: 'Forward',
-        age: 25,
-        team_id: 1,
+        league_id: 1,
+        league_name: 'Premier League',
+        teams: [
+          {
+            team_id: 1,
+            team_name: 'Eagles FC',
+            coach_name: 'Coach Smith',
+            players: [
+              { player_id: 1, player_name: 'John Doe', position: 'Forward', age: 25 },
+              { player_id: 2, player_name: 'Jane Smith', position: 'Midfielder', age: 22 },
+              { player_id: 3, player_name: 'Mike Johnson', position: 'Defender', age: 28 },
+            ],
+          },
+          {
+            team_id: 2,
+            team_name: 'Tigers FC',
+            coach_name: 'Coach Brown',
+            players: [
+              { player_id: 4, player_name: 'Alice Brown', position: 'Forward', age: 24 },
+              { player_id: 5, player_name: 'Bob White', position: 'Goalkeeper', age: 30 },
+            ],
+          },
+        ],
       },
       {
-        player_id: 2,
-        player_name: 'Jane Smith',
-        position: 'Midfielder',
-        age: 22,
-        team_id: 1,
+        league_id: 2,
+        league_name: 'Champions League',
+        teams: [
+          {
+            team_id: 3,
+            team_name: 'Lions FC',
+            coach_name: 'Coach Green',
+            players: [
+              { player_id: 6, player_name: 'Charlie Black', position: 'Midfielder', age: 27 },
+              { player_id: 7, player_name: 'David Blue', position: 'Defender', age: 26 },
+            ],
+          },
+        ],
       },
-      {
-        player_id: 3,
-        player_name: 'Mike Johnson',
-        position: 'Defender',
-        age: 28,
-        team_id: 1,
-      },
-      // Add more players as needed
     ];
 
     // Set state with mock data
-    setTeamInfo(teamData);
-    setPlayers(playersData);
-  }, [teamId]);
-
-  if (!teamInfo) {
-    return <div>Loading...</div>;
-  }
+    setLeagues(leagueData);
+  }, []);
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Team Information */}
-      <Card style={{ marginBottom: '16px' }}>
-        <CardHeader style={{ fontSize: '24px', color: 'blue' }}>
-          <h3>Team Information</h3>
-        </CardHeader>
-        <CardBody>
-          <p>Team Name: {teamInfo.team_name}</p>
-          <p>Coach Name: {teamInfo.coach_name}</p>
-        </CardBody>
-      </Card>
-
-      {/* Players */}
-      <Card>
-        <CardHeader style={{ fontSize: '24px', color: 'blue' }}>
-          <h3>Squad</h3>
-        </CardHeader>
-        <CardBody>
-          {players.length > 0 ? (
-            <Table
-              aria-label="Players"
-              css={{ height: 'auto', minWidth: '100%' }}
-            >
-              <TableHeader>
-                <TableColumn>Player Name</TableColumn>
-                <TableColumn>Position</TableColumn>
-                <TableColumn>Age</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {players.map((player) => (
-                  <TableRow key={player.player_id}>
-                    <TableCell>{player.player_name}</TableCell>
-                    <TableCell>{player.position}</TableCell>
-                    <TableCell>{player.age}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p>No players found.</p>
-          )}
-        </CardBody>
-      </Card>
+      {leagues.map((league) => (
+        <Card key={league.league_id} style={{ marginBottom: '16px' }}>
+          <CardHeader style={{ fontSize: '24px'}}>
+            <h3>{league.league_name}</h3>
+          </CardHeader>
+          <CardBody>
+            {league.teams.map((team) => (
+              <div key={team.team_id} style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '20px', color: 'green' }}>{team.team_name}</h4>
+                <p>Coach: {team.coach_name}</p>
+                <Table
+                  aria-label="Players"
+                  css={{ height: 'auto', minWidth: '100%' }}
+                >
+                  <TableHeader>
+                    <TableColumn>Player Name</TableColumn>
+                    <TableColumn>Position</TableColumn>
+                    <TableColumn>Age</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    {team.players.map((player) => (
+                      <TableRow key={player.player_id}>
+                        <TableCell>{player.player_name}</TableCell>
+                        <TableCell>{player.position}</TableCell>
+                        <TableCell>{player.age}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      ))}
     </div>
   );
 };
