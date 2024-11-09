@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function DashBoardPlayersLayout({
+export default function ProfilePlayersLayout({
   children,
 }: {
   children: React.ReactNode;
