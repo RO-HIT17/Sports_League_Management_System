@@ -49,7 +49,15 @@ const Navbar = () => {
               Home
             </NextLink>
           </NavbarItem>
-
+          <NavbarItem>
+            <NextLink
+              className={clsx(linkStyles({ color: "foreground" }))}
+              color="foreground"
+              href="/player/squads"
+            >
+              Squads
+            </NextLink>
+          </NavbarItem>
           <NavbarItem>
             <NextLink
               className={clsx(linkStyles({ color: "foreground" }))}
@@ -67,15 +75,12 @@ const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-            <GithubIcon />
-          </Link>
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
           <User      
             name="John Doe"
-            description="Manager"
+            description="Player"
           />
         </NavbarItem>
       </NavbarContent>
@@ -101,11 +106,20 @@ const Navbar = () => {
           <NavbarMenuItem>
             <Link
               color="foreground"
+              href="/player/squads"
+            >
+              Squads
+            </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem>
+            <Link
+              color="foreground"
  href="/player/profile"
             >
               Profile
             </Link>
           </NavbarMenuItem>
+
         </div>
       </NavbarMenu>
     </NextUINavbar>
