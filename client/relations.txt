@@ -1,0 +1,68 @@
+Sports League Management System: Database Schema
+Entities:
+Users: Represents the users of the system (admins, league organizers).
+Teams: Represents the sports teams participating in the league.
+Players: Represents individual players on each team.
+Leagues: Represents different leagues that are being managed.
+Matches: Represents the individual matches between teams.
+Schedules: Represents the schedule of matches.
+Results: Represents the outcomes of matches.
+Standings: Represents the standings of teams within a league based on their performance.
+Tables and Their Relationships:
+Users
+
+user_id (Primary Key)
+username (Unique)
+password
+email
+role (e.g., admin, organizer)
+Teams
+
+team_id (Primary Key)
+team_name (Unique)
+coach_name
+created_at
+Players
+
+player_id (Primary Key)
+player_name
+team_id (Foreign Key to Teams.team_id) — The team the player belongs to.
+position
+age
+Leagues
+
+league_id (Primary Key)
+league_name
+sport_type (e.g., soccer, basketball)
+created_by (Foreign Key to Users.user_id) — The user who created the league.
+Matches
+
+match_id (Primary Key)
+league_id (Foreign Key to Leagues.league_id) — The league the match belongs to.
+home_team_id (Foreign Key to Teams.team_id) — The home team.
+away_team_id (Foreign Key to Teams.team_id) — The away team.
+match_date (Date and Time)
+location
+Schedules
+
+schedule_id (Primary Key)
+league_id (Foreign Key to Leagues.league_id)
+match_id (Foreign Key to Matches.match_id)`
+match_date (Date and Time)
+Results
+
+result_id (Primary Key)
+match_id (Foreign Key to Matches.match_id)
+home_team_score
+away_team_score
+created_at
+Standings
+
+standing_id (Primary Key)
+league_id (Foreign Key to Leagues.league_id)
+team_id (Foreign Key to Teams.team_id)
+matches_played
+wins
+losses
+draws
+points
