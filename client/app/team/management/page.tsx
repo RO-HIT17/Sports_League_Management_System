@@ -84,10 +84,10 @@ const TeamManager = () => {
 
         setPositions(data.positions || []);
 
-        // Fetch players after setting the team ID
+       
         fetchPlayers(data.team_id);
 
-        // Fetch leagues (assuming you have an endpoint to get leagues)
+        
         fetchLeagues();
       } catch (error) {
         console.error('Error fetching team data:', error);

@@ -12,9 +12,24 @@ import {
   TableCell,
 } from '@nextui-org/react';
 
+type Team = {
+  team_id: number;
+  team_name: string;
+  wins: number;
+  losses: number;
+  points: number;
+};
+
+type Player = {
+  player_id: number;
+  player_name: string;
+  position: string;
+  age: number;
+};
+
 const Leaderboard = () => {
-  const [teams, setTeams] = useState([]);
-  const [players, setPlayers] = useState([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [teamId, setTeamId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -27,7 +42,8 @@ const Leaderboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/slms/team/getTeam', {
+        // Fetch team data
+        const teamResponse = await fetch('http://localhost:5000/slms/team/getTeam', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -36,43 +52,56 @@ const Leaderboard = () => {
           body: JSON.stringify({ user_id }),
         });
 
-        if (!response.ok) {
+        if (!teamResponse.ok) {
           throw new Error('Failed to fetch team data');
         }
 
-        const data = await response.json();
-        setTeamId(data.team_id);
-        localStorage.setItem('team_id', data.team_id);
-        // Mock data for teams
-        const teamsData = [
+        const teamData = await teamResponse.json();
+        setTeamId(teamData.team_id);
+        localStorage.setItem('team_id', teamData.team_id);
+
+        // Set static teams data for leaderboard
+        const staticTeamsData = [
           { team_id: 1, team_name: 'Eagles FC', wins: 10, losses: 2, points: 32 },
           { team_id: 2, team_name: 'Tigers FC', wins: 8, losses: 4, points: 28 },
           { team_id: 3, team_name: 'Lions FC', wins: 7, losses: 5, points: 26 },
           { team_id: 4, team_name: 'Bears FC', wins: 6, losses: 6, points: 24 },
-          // Add more teams as needed
         ];
+        setTeams(staticTeamsData);
 
-        // Mock data for players
-        const playersData = [
-          { player_id: 1, player_name: 'John Doe', position: 'Forward', age: 25 },
-          { player_id: 2, player_name: 'Jane Smith', position: 'Midfielder', age: 22 },
-          { player_id: 3, player_name: 'Mike Johnson', position: 'Defender', age: 28 },
-          { player_id: 4, player_name: 'Alice Brown', position: 'Goalkeeper', age: 24 },
-          { player_id: 5, player_name: 'Bob White', position: 'Forward', age: 27 },
-          // Add more players as needed
-        ];
+        // Fetch players based on team_id
+        await fetchPlayers(teamData.team_id);
 
-        // Filter players for the current team
-        const filteredPlayers = playersData.filter(
-          (player) => /* Add condition if players are associated with teams */
-          true // Replace with actual condition if applicable
-        );
-
-        // Set state with mock data
-        setTeams(teamsData);
-        setPlayers(filteredPlayers);
       } catch (error) {
         console.error('Error fetching team data:', error);
+      }
+    };
+
+    const fetchPlayers = async (team_id: number) => {
+      const authToken = localStorage.getItem('authToken');
+      if (!team_id) {
+        console.error('Team ID not found');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/slms/team/getPlayers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ team_id }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch players');
+        }
+
+        const playersData = await response.json();
+        setPlayers(playersData);
+      } catch (error) {
+        console.error('Error fetching players:', error);
       }
     };
 
@@ -139,6 +168,7 @@ const Leaderboard = () => {
               css={{ height: 'auto', minWidth: '100%' }}
             >
               <TableHeader>
+                <TableColumn>Player ID</TableColumn>
                 <TableColumn>Player Name</TableColumn>
                 <TableColumn>Position</TableColumn>
                 <TableColumn>Age</TableColumn>
@@ -146,6 +176,7 @@ const Leaderboard = () => {
               <TableBody>
                 {players.map((player) => (
                   <TableRow key={player.player_id}>
+                    <TableCell>{player.player_id}</TableCell>
                     <TableCell>{player.player_name}</TableCell>
                     <TableCell>{player.position}</TableCell>
                     <TableCell>{player.age}</TableCell>

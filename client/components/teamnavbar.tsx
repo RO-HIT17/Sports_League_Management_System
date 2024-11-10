@@ -38,7 +38,7 @@ const TeamNavbar = () => {
     localStorage.removeItem('name');
     localStorage.removeItem('authToken');
     localStorage.removeItem('user_id');
-    
+    localStorage.removeItem('team_id');
     window.location.href = '/login';
   };
 
