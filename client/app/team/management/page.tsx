@@ -43,7 +43,7 @@ const TeamManager = () => {
   const { isOpen: isEditPlayerModalOpen, onOpen: openEditPlayerModal, onOpenChange: toggleEditPlayerModal } = useDisclosure();
 
   useEffect(() => {
-    const fetchPositions = async () => {
+    const fetchTeamAndPositions = async () => {
       const user_id = localStorage.getItem('user_id');
       const authToken = localStorage.getItem('authToken');
       if (!user_id) {
@@ -69,14 +69,45 @@ const TeamManager = () => {
         setTeamId(data.team_id);
         localStorage.setItem('team_id', data.team_id);
   
-        
         setPositions(data.positions || []);
+
+        // Fetch players after setting the team ID
+        fetchPlayers(data.team_id);
+
       } catch (error) {
         console.error('Error fetching team data:', error);
       }
     };
-  
-    fetchPositions();
+
+    const fetchPlayers = async (team_id: number) => {
+      const authToken = localStorage.getItem('authToken');
+      if (!team_id) {
+        console.error('Team ID not found');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/slms/team/getPlayers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ team_id }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch players');
+        }
+
+        const playersData = await response.json();
+        setPlayers(playersData);
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
+    };
+
+    fetchTeamAndPositions();
   }, []);
 
   useEffect(() => {
@@ -97,7 +128,7 @@ const TeamManager = () => {
     setLeagues(fetchedLeagues);
   }, [teamId]);
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = async () => {
     if (
       newPlayer.player_name.trim() === '' ||
       newPlayer.position.trim() === '' ||
@@ -106,14 +137,41 @@ const TeamManager = () => {
       alert('Please fill in all player details.');
       return;
     }
-
-    // Add player logic (Replace with actual API call)
-    const newId = players.length > 0 ? players[players.length - 1].player_id + 1 : 1;
-    const addedPlayer = { player_id: newId, ...newPlayer };
-    //console.log(positions);
-    setPlayers([...players, addedPlayer]);
-    toggleAddPlayerModal(false);
-    setNewPlayer({ player_name: '', position: '', age: '' });
+  
+    const authToken = localStorage.getItem('authToken');
+    const team_id = localStorage.getItem('team_id');
+  
+    try {
+      const response = await fetch('http://localhost:5000/slms/team/addPlayer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          player_name: newPlayer.player_name,
+          team_id: team_id,
+          position: newPlayer.position,
+          age: newPlayer.age,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to add player.');
+        return;
+      }
+  
+      const addedPlayer = await response.json();
+  
+      // Update the players array with the new player
+      setPlayers([...players, addedPlayer]);
+      toggleAddPlayerModal(false);
+      setNewPlayer({ player_name: '', position: '', age: '' });
+    } catch (error) {
+      console.error('Error adding player:', error);
+      alert('An error occurred while adding the player.');
+    }
   };
   const handleEditPlayer = () => {
     if (
@@ -174,6 +232,7 @@ const TeamManager = () => {
           {players.length > 0 ? (
             <Table aria-label="Manage Players" css={{ minWidth: '100%' }}>
               <TableHeader>
+                <TableColumn>Player Id</TableColumn>
                 <TableColumn>Player Name</TableColumn>
                 <TableColumn>Position</TableColumn>
                 <TableColumn>Age</TableColumn>
@@ -182,6 +241,7 @@ const TeamManager = () => {
               <TableBody>
                 {players.map((player) => (
                   <TableRow key={player.player_id}>
+                    <TableCell>{player.player_id}</TableCell>
                     <TableCell>{player.player_name}</TableCell>
                     <TableCell>{player.position}</TableCell>
                     <TableCell>{player.age}</TableCell>
