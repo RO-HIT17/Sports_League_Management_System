@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from 'next/navigation'; 
 import { useState } from 'react'; 
-import { Button, Input, Spacer } from "@nextui-org/react"; 
+import { Button, Input } from "@nextui-org/react"; 
 import {
   Card,
   CardHeader,
@@ -50,7 +50,9 @@ export const description =
   
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user_id', data.user.user_id);
-        
+        localStorage.setItem('role', data.user.role);
+        localStorage.setItem('name', data.user.name);
+
         switch (data.user.role) {
           case 'player':
             router.push('/player/dashboard');

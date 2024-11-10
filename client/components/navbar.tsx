@@ -8,7 +8,6 @@ import {
   NavbarItem,
   NavbarMenuItem,
 } from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import { link as linkStyles } from "@nextui-org/theme";
 import NextLink from "next/link";
@@ -17,15 +16,32 @@ import withAuth from "@/app/hoc/withAuth";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  TwitterIcon,
   GithubIcon,
-  DiscordIcon,
   Logo,
 } from "@/components/icons";
 import { User } from "@nextui-org/user";
-
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
+  const [role, setRole] = useState<string>('');
+  const [name, setName] = useState<string>('');
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    const storedName = localStorage.getItem('name'); 
+    if (storedRole) setRole(storedRole);
+    if (storedName) setName(storedName);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('role');
+    localStorage.removeItem('name');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user_id');
+    
+    window.location.href = '/login';
+  };
+
   return (
     <NextUINavbar
       maxWidth="full"
@@ -74,9 +90,14 @@ const Navbar = () => {
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
           <User      
-            name="John Doe"
-            description="Manager"
+            name={name}
+            description={role}
           />
+        </NavbarItem>
+        <NavbarItem className="hidden md:flex">
+          <Button auto flat onClick={handleLogout}>
+            Logout
+          </Button>
         </NavbarItem>
       </NavbarContent>
 
@@ -101,10 +122,15 @@ const Navbar = () => {
           <NavbarMenuItem>
             <Link
               color="foreground"
- href="/settings"
+              href="/settings"
             >
               Settings
             </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem>
+            <Button auto flat color="error" onClick={handleLogout}>
+              Logout
+            </Button>
           </NavbarMenuItem>
         </div>
       </NavbarMenu>
