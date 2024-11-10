@@ -19,3 +19,14 @@ export enum CricketPosition {
   AllRounder = 'AllRounder',
   WicketKeeper = 'WicketKeeper'
 }
+
+export enum TeamType {
+  Football = 'Football',
+  Cricket = 'Cricket'
+}
+
+export enum TeamStatus {
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Pending = 'pending'
+}

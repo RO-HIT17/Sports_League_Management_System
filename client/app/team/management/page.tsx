@@ -26,9 +26,10 @@ import {
 import { Select,SelectItem } from '@nextui-org/react';
 
 const TeamManager = () => {
-  const teamId = 1; 
+  const [teamId, setTeamId] = useState([]);
   const [players, setPlayers] = useState([]);
   const [leagues, setLeagues] = useState([]);
+  const [positions, setPositions] = useState<string[]>([]);
   const [newPlayer, setNewPlayer] = useState({
     player_name: '',
     position: '',
@@ -36,20 +37,58 @@ const TeamManager = () => {
   });
   const [selectedLeague, setSelectedLeague] = useState(null);
 
-  // Modal controls using `useDisclosure`
+
   const { isOpen: isAddPlayerModalOpen, onOpen: openAddPlayerModal, onOpenChange: toggleAddPlayerModal } = useDisclosure();
   const { isOpen: isRegisterLeagueModalOpen, onOpen: openRegisterLeagueModal, onOpenChange: toggleRegisterLeagueModal } = useDisclosure();
   const { isOpen: isEditPlayerModalOpen, onOpen: openEditPlayerModal, onOpenChange: toggleEditPlayerModal } = useDisclosure();
+
   useEffect(() => {
-    // Fetch players (Replace with actual API call)
+    const fetchPositions = async () => {
+      const user_id = localStorage.getItem('user_id');
+      const authToken = localStorage.getItem('authToken');
+      if (!user_id) {
+        console.error('User ID not found in local storage');
+        return;
+      }
+  
+      try {
+        const response = await fetch('http://localhost:5000/slms/team/getTeam', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ user_id }),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch team data');
+        }
+  
+        const data = await response.json();
+        setTeamId(data.team_id);
+        localStorage.setItem('team_id', data.team_id);
+  
+        
+        setPositions(data.positions || []);
+      } catch (error) {
+        console.error('Error fetching team data:', error);
+      }
+    };
+  
+    fetchPositions();
+  }, []);
+
+  useEffect(() => {
+
     const fetchedPlayers = [
       { player_id: 1, player_name: 'John Doe', position: 'Forward', age: 25 },
       { player_id: 2, player_name: 'Jane Smith', position: 'Midfielder', age: 22 },
-      // Add more players as needed
+      
     ];
     setPlayers(fetchedPlayers);
 
-    // Fetch leagues (Replace with actual API call)
+    
     const fetchedLeagues = [
       { league_id: 1, league_name: 'Premier League', sport_type: 'Soccer' },
       { league_id: 2, league_name: 'Champions League', sport_type: 'Soccer' },
@@ -71,6 +110,7 @@ const TeamManager = () => {
     // Add player logic (Replace with actual API call)
     const newId = players.length > 0 ? players[players.length - 1].player_id + 1 : 1;
     const addedPlayer = { player_id: newId, ...newPlayer };
+    //console.log(positions);
     setPlayers([...players, addedPlayer]);
     toggleAddPlayerModal(false);
     setNewPlayer({ player_name: '', position: '', age: '' });
@@ -192,15 +232,16 @@ const TeamManager = () => {
                     onChange={(e) => setNewPlayer({ ...newPlayer, player_name: e.target.value })}
                     />
                     <Select
-                    label="Position"
-                    value={newPlayer.position}
-                    onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                      label="Position"
+                      value={newPlayer.position}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
+                      style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     >
-                    <SelectItem value="Forward">Forward</SelectItem>
-                    <SelectItem value="Midfielder">Midfielder</SelectItem>
-                    <SelectItem value="Defender">Defender</SelectItem>
-                    <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                      {positions.map((position) => (
+                        <SelectItem key={position} value={position}>
+                          {position}
+                        </SelectItem>
+                      ))}
                     </Select>
                     <Input
                     clearable
@@ -231,13 +272,7 @@ const TeamManager = () => {
             <>
               <ModalHeader className="flex flex-col gap-1">Add New Player</ModalHeader>
               <ModalBody>
-              <Input
-                  clearable
-                  fullWidth
-                  label="Player ID"
-                  value={newPlayer.player_id}
-                  onChange={(e) => setNewPlayer({ ...newPlayer, player_id: e.target.value })}
-                />
+
                 <Input
                   clearable
                   fullWidth
@@ -246,15 +281,16 @@ const TeamManager = () => {
                   onChange={(e) => setNewPlayer({ ...newPlayer, player_name: e.target.value })}
                 />
                 <Select
-                    label="Position"
+                  label="Position"
                   value={newPlayer.position}
                   onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
                   style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                 >
-                  <SelectItem value="Forward">Forward</SelectItem>
-                  <SelectItem value="Midfielder">Midfielder</SelectItem>
-                  <SelectItem value="Defender">Defender</SelectItem>
-                  <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                  {positions.map((position) => (
+                    <SelectItem key={position} value={position}>
+                      {position}
+                    </SelectItem>
+                  ))}
                 </Select>
                 <Input
                   clearable
