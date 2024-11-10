@@ -26,7 +26,7 @@ import {
 import { Select,SelectItem } from '@nextui-org/react';
 
 const TeamManager = () => {
-  const teamId = 1; // Replace with actual team ID
+  const teamId = 1; 
   const [players, setPlayers] = useState([]);
   const [leagues, setLeagues] = useState([]);
   const [newPlayer, setNewPlayer] = useState({

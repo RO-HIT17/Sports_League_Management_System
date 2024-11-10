@@ -65,7 +65,7 @@ const SignUpPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/slms/register', {
+      const response = await fetch('http://localhost:5000/slms/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

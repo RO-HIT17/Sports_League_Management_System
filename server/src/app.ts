@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
+import teamRoutes from './routes/teamRoutes';
 import cors from 'cors';
 
 dotenv.config();
@@ -10,8 +11,8 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-app.use('/slms', userRoutes);
+app.use('/slms/team', teamRoutes);
+app.use('/slms/user', userRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

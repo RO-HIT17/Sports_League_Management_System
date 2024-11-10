@@ -32,7 +32,7 @@ export const description =
       }
   
       try {
-        const response = await fetch('http://localhost:5000/slms/login', {
+        const response = await fetch('http://localhost:5000/slms/user/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
