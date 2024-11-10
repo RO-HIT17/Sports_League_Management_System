@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { useState, FormEvent } from 'react'; 
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import {
@@ -37,7 +38,7 @@ const SignUpPage: React.FC = () => {
     confirmPassword: '',
     role: '',
   }); 
-
+  const router = useRouter();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -86,6 +87,28 @@ const SignUpPage: React.FC = () => {
 
       const data = await response.json();
       console.log('User registered successfully:', data);
+
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('user_id', data.user_id);
+
+      
+      switch (data.role) {
+        case 'player':
+          router.push('/player/dashboard');
+          break;
+        case 'teammanager':
+          router.push('/team/dashboard');
+          break;
+        case 'leaguemanager':
+          router.push('/league/dashboard');
+          break;
+        case 'admin':
+          router.push('/admin/dashboard');
+          break;
+        default:
+          router.push('/');
+          break;
+      }
 
     } catch (error) {
       console.error('Error during registration:', error);
