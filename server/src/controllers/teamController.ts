@@ -62,3 +62,41 @@ export const getPLayers = async (req: Request, res: Response): Promise<void> => 
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+
+export const updatePlayer = async (req: Request, res: Response): Promise<void> => {
+    const { player_id, player_name, position, age } = req.body;
+  
+    try {
+      const result = await query(
+        'UPDATE Players SET player_name = $1, position = $2, age = $3 WHERE player_id = $4 RETURNING *',
+        [player_name, position, age, player_id]
+      );
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Player not found' });
+        return;
+      }
+  
+      res.status(200).json(result.rows[0]);
+    } catch (error) {
+      console.error('Error updating player:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  export const removePlayer = async (req: Request, res: Response): Promise<void> => {
+    const { player_id } = req.body;
+  
+    try {
+      const result = await query('DELETE FROM Players WHERE player_id = $1 RETURNING *', [player_id]);
+  
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Player not found' });
+        return;
+      }
+  
+      res.status(200).json(result.rows[0]);
+    } catch (error) {
+      console.error('Error removing player:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }

@@ -1,46 +1,59 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  CardHeader, 
-  CardBody, 
-  Table, 
-  TableHeader, 
-  TableColumn, 
-  TableBody, 
-  TableRow, 
-  TableCell, 
-  Button, 
-  Input, 
-  Modal, 
-  ModalContent, 
-  ModalHeader, 
-  ModalBody, 
-  ModalFooter, 
-  Dropdown, 
-  DropdownTrigger,
-  DropdownMenu, 
-  DropdownItem,
-  useDisclosure
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  useDisclosure,
+  Spacer,
 } from '@nextui-org/react';
-import { Select,SelectItem } from '@nextui-org/react';
 
 const TeamManager = () => {
-  const [teamId, setTeamId] = useState([]);
+  const [teamId, setTeamId] = useState<number | null>(null);
+  const [teams, setTeams] = useState([]);
   const [players, setPlayers] = useState([]);
-  const [leagues, setLeagues] = useState([]);
   const [positions, setPositions] = useState<string[]>([]);
   const [newPlayer, setNewPlayer] = useState({
+    player_id: '',
     player_name: '',
     position: '',
     age: '',
   });
-  const [selectedLeague, setSelectedLeague] = useState(null);
+  const [leagues, setLeagues] = useState([]);
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  const [playerToRemove, setPlayerToRemove] = useState<any>(null);
 
-
-  const { isOpen: isAddPlayerModalOpen, onOpen: openAddPlayerModal, onOpenChange: toggleAddPlayerModal } = useDisclosure();
-  const { isOpen: isRegisterLeagueModalOpen, onOpen: openRegisterLeagueModal, onOpenChange: toggleRegisterLeagueModal } = useDisclosure();
-  const { isOpen: isEditPlayerModalOpen, onOpen: openEditPlayerModal, onOpenChange: toggleEditPlayerModal } = useDisclosure();
+  const {
+    isOpen: isAddPlayerModalOpen,
+    onOpenChange: toggleAddPlayerModal,
+  } = useDisclosure();
+  const {
+    isOpen: isRegisterLeagueModalOpen,
+    onOpenChange: toggleRegisterLeagueModal,
+  } = useDisclosure();
+  const {
+    isOpen: isEditPlayerModalOpen,
+    onOpenChange: toggleEditPlayerModal,
+  } = useDisclosure();
+  const {
+    isOpen: isRemovePlayerModalOpen,
+    onOpenChange: toggleRemovePlayerModal,
+  } = useDisclosure();
 
   useEffect(() => {
     const fetchTeamAndPositions = async () => {
@@ -50,7 +63,7 @@ const TeamManager = () => {
         console.error('User ID not found in local storage');
         return;
       }
-  
+
       try {
         const response = await fetch('http://localhost:5000/slms/team/getTeam', {
           method: 'POST',
@@ -60,20 +73,22 @@ const TeamManager = () => {
           },
           body: JSON.stringify({ user_id }),
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to fetch team data');
         }
-  
+
         const data = await response.json();
         setTeamId(data.team_id);
         localStorage.setItem('team_id', data.team_id);
-  
+
         setPositions(data.positions || []);
 
         // Fetch players after setting the team ID
         fetchPlayers(data.team_id);
 
+        // Fetch leagues (assuming you have an endpoint to get leagues)
+        fetchLeagues();
       } catch (error) {
         console.error('Error fetching team data:', error);
       }
@@ -107,26 +122,32 @@ const TeamManager = () => {
       }
     };
 
+    const fetchLeagues = async () => {
+      // Fetch leagues logic (Replace with actual API call)
+      const authToken = localStorage.getItem('authToken');
+
+      try {
+        const response = await fetch('http://localhost:5000/slms/league/getLeagues', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch leagues');
+        }
+
+        const leaguesData = await response.json();
+        setLeagues(leaguesData);
+      } catch (error) {
+        console.error('Error fetching leagues:', error);
+      }
+    };
+
     fetchTeamAndPositions();
   }, []);
-
-  useEffect(() => {
-
-    const fetchedPlayers = [
-      { player_id: 1, player_name: 'John Doe', position: 'Forward', age: 25 },
-      { player_id: 2, player_name: 'Jane Smith', position: 'Midfielder', age: 22 },
-      
-    ];
-    setPlayers(fetchedPlayers);
-
-    
-    const fetchedLeagues = [
-      { league_id: 1, league_name: 'Premier League', sport_type: 'Soccer' },
-      { league_id: 2, league_name: 'Champions League', sport_type: 'Soccer' },
-      // Add more leagues as needed
-    ];
-    setLeagues(fetchedLeagues);
-  }, [teamId]);
 
   const handleAddPlayer = async () => {
     if (
@@ -137,10 +158,10 @@ const TeamManager = () => {
       alert('Please fill in all player details.');
       return;
     }
-  
+
     const authToken = localStorage.getItem('authToken');
     const team_id = localStorage.getItem('team_id');
-  
+
     try {
       const response = await fetch('http://localhost:5000/slms/team/addPlayer', {
         method: 'POST',
@@ -155,47 +176,104 @@ const TeamManager = () => {
           age: newPlayer.age,
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to add player.');
         return;
       }
-  
+
       const addedPlayer = await response.json();
-  
-      // Update the players array with the new player
+
       setPlayers([...players, addedPlayer]);
       toggleAddPlayerModal(false);
-      setNewPlayer({ player_name: '', position: '', age: '' });
+      setNewPlayer({ player_id: '', player_name: '', position: '', age: '' });
     } catch (error) {
       console.error('Error adding player:', error);
       alert('An error occurred while adding the player.');
     }
   };
-  const handleEditPlayer = () => {
-    if (
-      newPlayer.player_name.trim() === '' ||
-      newPlayer.position.trim() === '' ||
-      newPlayer.age === ''
-    ) {
-      alert('Please fill in all player details.');
+
+  const handleEditPlayer = async () => {
+    if (!newPlayer.player_id) {
+      alert('Player ID is required.');
       return;
     }
-  
-    // Update player logic (Replace with actual API call)
-    const updatedPlayers = players.map((player) =>
-      player.player_id === newPlayer.player_id ? newPlayer : player
-    );
-  
-    setPlayers(updatedPlayers);
-    toggleEditPlayerModal(false);
-    setNewPlayer({ player_id: '', player_name: '', position: '', age: '' });
+
+    const authToken = localStorage.getItem('authToken');
+
+    const data: any = { player_id: newPlayer.player_id };
+
+    if (newPlayer.player_name.trim() !== '') {
+      data.player_name = newPlayer.player_name.trim();
+    }
+    if (newPlayer.position.trim() !== '') {
+      data.position = newPlayer.position.trim();
+    }
+    if (newPlayer.age !== '' && newPlayer.age !== null) {
+      data.age = newPlayer.age;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/slms/team/updatePlayer', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to update player.');
+        return;
+      }
+
+      const updatedPlayer = await response.json();
+
+      setPlayers((prevPlayers) =>
+        prevPlayers.map((player) =>
+          player.player_id === updatedPlayer.player_id ? updatedPlayer : player
+        )
+      );
+      toggleEditPlayerModal(false);
+      setNewPlayer({ player_id: '', player_name: '', position: '', age: '' });
+    } catch (error) {
+      console.error('Error updating player:', error);
+      alert('An error occurred while updating the player.');
+    }
   };
-  const handleRemovePlayer = (id) => {
-    if (window.confirm('Are you sure you want to remove this player?')) {
-      // Remove player logic (Replace with actual API call)
-      setPlayers(players.filter((player) => player.player_id !== id));
+
+  const handleRemovePlayer = async () => {
+    if (!playerToRemove) return;
+
+    const authToken = localStorage.getItem('authToken');
+
+    try {
+      const response = await fetch('http://localhost:5000/slms/team/deletePlayer', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ player_id: playerToRemove.player_id }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to remove player.');
+        return;
+      }
+
+      setPlayers((prevPlayers) =>
+        prevPlayers.filter((player) => player.player_id !== playerToRemove.player_id)
+      );
+      toggleRemovePlayerModal(false);
+      setPlayerToRemove(null);
+    } catch (error) {
+      console.error('Error removing player:', error);
+      alert('An error occurred while removing the player.');
     }
   };
 
@@ -211,26 +289,41 @@ const TeamManager = () => {
     setSelectedLeague(null);
   };
 
+  const openEditPlayerModal = (player: any) => {
+    setNewPlayer({
+      player_id: player.player_id,
+      player_name: player.player_name || '',
+      position: player.position || '',
+      age: player.age || '',
+    });
+    toggleEditPlayerModal(true);
+  };
+
+  const openRemovePlayerModal = (player: any) => {
+    setPlayerToRemove(player);
+    toggleRemovePlayerModal(true);
+  };
+
   return (
     <div style={{ padding: '16px' }}>
-      {/* Add New Player */}
+      {/* Players Table */}
+
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3>Add New Player</h3>
-          <Button auto onPress={openAddPlayerModal}>
+          <Button auto onPress={toggleAddPlayerModal}>
             Add Player
           </Button>
         </CardHeader>
       </Card>
 
-      {/* Manage Players */}
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3>Manage Players</h3>
         </CardHeader>
         <CardBody>
           {players.length > 0 ? (
-            <Table aria-label="Manage Players" css={{ minWidth: '100%' }}>
+            <Table aria-label="Players" css={{ height: 'auto', minWidth: '100%' }}>
               <TableHeader>
                 <TableColumn>Player Id</TableColumn>
                 <TableColumn>Player Name</TableColumn>
@@ -246,14 +339,20 @@ const TeamManager = () => {
                     <TableCell>{player.position}</TableCell>
                     <TableCell>{player.age}</TableCell>
                     <TableCell>
-                      <Button size="sm" flat color="warning" style={{ marginRight: '8px' }} auto onPress={openEditPlayerModal}>
+                      <Button
+                        size="sm"
+                        flat
+                        color="warning"
+                        style={{ marginRight: '8px' }}
+                        onPress={() => openEditPlayerModal(player)}
+                      >
                         Edit
                       </Button>
                       <Button
                         size="sm"
                         flat
                         color="danger"
-                        onPress={() => handleRemovePlayer(player.player_id)}
+                        onPress={() => openRemovePlayerModal(player)}
                       >
                         Remove
                       </Button>
@@ -265,149 +364,173 @@ const TeamManager = () => {
           ) : (
             <p>No players found.</p>
           )}
+          
         </CardBody>
       </Card>
 
-      {/* Register Team in League */}
       <Card>
         <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3>Register Team in League</h3>
-          <Button auto onPress={openRegisterLeagueModal}>
+          <Button auto onPress={toggleRegisterLeagueModal}>
             Register
           </Button>
         </CardHeader>
       </Card>
-      {/* Modal for Editing Player */}
-      <Modal isOpen={isEditPlayerModalOpen} onOpenChange={toggleEditPlayerModal}>   
-        <ModalContent>
-            {(onClose) => (
-                <>
-                <ModalHeader className="flex flex-col gap-1">Edit Player</ModalHeader>
-                <ModalBody>
-                    <Input
-                    clearable
-                    fullWidth
-                    label="Player Name"
-                    value={newPlayer.player_name}
-                    onChange={(e) => setNewPlayer({ ...newPlayer, player_name: e.target.value })}
-                    />
-                    <Select
-                      label="Position"
-                      value={newPlayer.position}
-                      onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
-                      style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    >
-                      {positions.map((position) => (
-                        <SelectItem key={position} value={position}>
-                          {position}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                    <Input
-                    clearable
-                    fullWidth
-                    label="Age"
-                    type="number"
-                    value={newPlayer.age}
-                    onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
-                    />
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                    </Button>
-                    <Button color="primary" onPress={handleEditPlayer}>
-                    Edit
-                    </Button>
-                </ModalFooter>
-                </>
-            )}
-            </ModalContent>
-        </Modal>    
-
-      {/* Modal for Adding Player */}
+      
       <Modal isOpen={isAddPlayerModalOpen} onOpenChange={toggleAddPlayerModal}>
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Add New Player</ModalHeader>
-              <ModalBody>
-
-                <Input
-                  clearable
-                  fullWidth
-                  label="Player Name"
-                  value={newPlayer.player_name}
-                  onChange={(e) => setNewPlayer({ ...newPlayer, player_name: e.target.value })}
-                />
-                <Select
-                  label="Position"
-                  value={newPlayer.position}
-                  onChange={(e) => setNewPlayer({ ...newPlayer, position: e.target.value })}
-                  style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                >
-                  {positions.map((position) => (
-                    <SelectItem key={position} value={position}>
-                      {position}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Input
-                  clearable
-                  fullWidth
-                  label="Age"
-                  type="number"
-                  value={newPlayer.age}
-                  onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={handleAddPlayer}>
-                  Add
-                </Button>
-              </ModalFooter>
-            </>
-          )}
+          <ModalHeader>Add Player</ModalHeader>
+          <ModalBody>
+            <Input
+              clearable
+              fullWidth
+              label="Player Name"
+              value={newPlayer.player_name}
+              onChange={(e) =>
+                setNewPlayer({ ...newPlayer, player_name: e.target.value })
+              }
+            />
+            <Select
+              label="Position"
+              value={newPlayer.position}
+              onChange={(e) =>
+                setNewPlayer({ ...newPlayer, position: e.target.value })
+              }
+              style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+            >
+              {positions.map((position) => (
+                <SelectItem key={position} value={position}>
+                  {position}
+                </SelectItem>
+              ))}
+            </Select>
+            <Input
+              clearable
+              fullWidth
+              label="Age"
+              type="number"
+              value={newPlayer.age}
+              onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button flat color="default" onPress={() => toggleAddPlayerModal(false)}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleAddPlayer}>
+              Add Player
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {/* Modal for Registering Team in League */}
-      <Modal isOpen={isRegisterLeagueModalOpen} onOpenChange={toggleRegisterLeagueModal}>
+      {/* Edit Player Modal */}
+      <Modal isOpen={isEditPlayerModalOpen} onOpenChange={toggleEditPlayerModal}>
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Register Team in League</ModalHeader>
-              <ModalBody>
-                <Select
-                  label="Select League"
-                  value={selectedLeague}
-                  onChange={(e) => setSelectedLeague(Number(e.target.value))}
-                  style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                >
-                  {leagues.map((league) => (
-                    <SelectItem key={league.league_id} value={league.league_id}>
-                      {league.league_name}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="primary" onPress={handleRegisterLeague} disabled={!selectedLeague}>
-                  Register
-                </Button>
-              </ModalFooter>
-            </>
-          )}
+          <ModalHeader>Edit Player</ModalHeader>
+          <ModalBody>
+            <Input
+              clearable
+              fullWidth
+              label="Player Name"
+              value={newPlayer.player_name}
+              onChange={(e) =>
+                setNewPlayer({ ...newPlayer, player_name: e.target.value })
+              }
+            />
+            <Select
+              label="Position"
+              value={newPlayer.position}
+              onChange={(e) =>
+                setNewPlayer({ ...newPlayer, position: e.target.value })
+              }
+              style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+            >
+              {positions.map((position) => (
+                <SelectItem key={position} value={position}>
+                  {position}
+                </SelectItem>
+              ))}
+            </Select>
+            <Input
+              clearable
+              fullWidth
+              label="Age"
+              type="number"
+              value={newPlayer.age}
+              onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button flat color="default" onPress={() => toggleEditPlayerModal(false)}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleEditPlayer}>
+              Update Player
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Remove Player Confirmation Modal */}
+      <Modal isOpen={isRemovePlayerModalOpen} onOpenChange={toggleRemovePlayerModal}>
+        <ModalContent>
+          <ModalHeader>Confirm Removal</ModalHeader>
+          <ModalBody>
+            <p>
+              Are you sure you want to remove{' '}
+              <strong>{playerToRemove && playerToRemove.player_name}</strong>?
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button flat color="default" onPress={() => toggleRemovePlayerModal(false)}>
+              Cancel
+            </Button>
+            <Button color="danger" onPress={handleRemovePlayer}>
+              Remove
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Register League Modal */}
+      <Modal
+        isOpen={isRegisterLeagueModalOpen}
+        onOpenChange={toggleRegisterLeagueModal}
+      >
+        <ModalContent>
+          <ModalHeader>Register for a League</ModalHeader>
+          <ModalBody>
+            <Select
+              label="Select League"
+              placeholder="Choose a league"
+              value={selectedLeague?.toString() || ''}
+              onChange={(e) => setSelectedLeague(parseInt(e.target.value))}
+              style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+            >
+              {leagues.map((league) => (
+                <SelectItem key={league.league_id} value={league.league_id.toString()}>
+                  {league.league_name}
+                </SelectItem>
+              ))}
+            </Select>
+          </ModalBody>
+          <ModalFooter>
+            <Button flat color="default" onPress={() => toggleRegisterLeagueModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleRegisterLeague}
+              disabled={!selectedLeague}
+            >
+              Register
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>
   );
 };
 
-export default TeamManager;
+export default TeamManager;	
