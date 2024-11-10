@@ -2,24 +2,24 @@
 
 import Link from "next/link";
 import { useState, FormEvent } from 'react'; 
-import { Button, Input, Spacer, Select, SelectItem } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
 } from "@nextui-org/card"; 
+
 import { FaGoogle } from "react-icons/fa"; 
 import { title } from "@/components/primitives";
+
 export const description =
   "A sign-up form with first name, last name, email, password, and confirm password. There's an option to sign up with Google and GitHub.";
 
 
 interface SignUpFormData {
-  firstName: string;
-  lastName: string;
-  userName: string;
-  mobile: string;
+  name: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -28,16 +28,14 @@ interface SignUpFormData {
 
 const SignUpPage: React.FC = () => {
   const [error, setError] = useState<string>(''); 
-  const [role, setRole] = useState<string>('user');
+  const [role, setRole] = useState<string>('');
   const [formData, setFormData] = useState<SignUpFormData>({
-    firstName: '',
-    lastName: '',
-    userName: '',
-    mobile: '',
+    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user',
+    role: '',
   }); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -47,10 +45,18 @@ const SignUpPage: React.FC = () => {
     });
   };
 
+  const handleRoleChange = (value: string) => {
+    setRole(value);
+    setFormData({
+      ...formData,
+      role: value,
+    });
+  };
+
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
 
-    const { firstName, lastName, userName, mobile, email, password, confirmPassword, role } = formData;
+    const { name, username, email, password, confirmPassword, role } = formData;
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -58,16 +64,14 @@ const SignUpPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch('http://localhost:5000/slms/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName,
-          lastName,
-          userName,
-          mobile,
+          name,
+          username,
           email,
           password,
           role,
@@ -95,36 +99,25 @@ const SignUpPage: React.FC = () => {
         <CardHeader className="text-center">
           <h2 className={title({ color: "violet" })}>Sports League System</h2>
         </CardHeader>
-        <CardBody>
+        <CardBody className="p-8">
           <form className="grid gap-2" onSubmit={handleSignUp}>
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <Input
-                id="firstName"
+                id="name"
                 type="text"
-                label="First Name"
+                label="Name"
                 variant="bordered"
                 fullWidth
                 clearable
                 required
-                className="bg-transparent"
-                onChange={handleChange}
-              />
-              <Input
-                id="lastName"
-                type="text"
-                label="Last Name"
-                variant="bordered"
-                fullWidth
-                clearable
-                required
-                className="bg-transparent"
+                className="bg-transparent col-span-2"
                 onChange={handleChange}
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <Input
-                id="userName"
+                id="username"
                 type="text"
                 label="Username"
                 variant="bordered"
@@ -142,7 +135,7 @@ const SignUpPage: React.FC = () => {
                 required
                 className="bg-transparent"
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => handleRoleChange(e.target.value)}
               >
                 <SelectItem key="player" value="player">Player</SelectItem>
                 <SelectItem key="teammanager" value="teammanager">Team Manager</SelectItem>
@@ -150,7 +143,7 @@ const SignUpPage: React.FC = () => {
                 <SelectItem key="admin" value="admin">Admin</SelectItem>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <Input
                 id="email"
                 type="email"
@@ -159,18 +152,7 @@ const SignUpPage: React.FC = () => {
                 fullWidth
                 clearable
                 required
-                className="bg-transparent"
-                onChange={handleChange}
-              />
-              <Input
-                id="mobile"
-                type="tel"
-                label="Phone Number"
-                variant="bordered"
-                fullWidth
-                clearable
-                required
-                className="bg-transparent"
+                className="bg-transparent col-span-2"
                 onChange={handleChange}
               />
             </div>

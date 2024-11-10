@@ -6,9 +6,9 @@ import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
 export const register = async (req: Request, res: Response) : Promise<void> => {
-    const { username, password } = req.body;
+    const { name, username, role, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const result = await query('INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
+    const result = await query('INSERT INTO users (name, username, role, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *', [name, username, role, email, hashedPassword]);
     res.status(201).send(result.rows[0]);
 };
 
