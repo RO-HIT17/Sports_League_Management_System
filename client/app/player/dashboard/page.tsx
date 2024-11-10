@@ -13,11 +13,40 @@ import {
 } from '@nextui-org/react';
 
 const Dashboard = () => {
-  const teamId = 1; // Replace with actual team ID
+  const teamId = 1; 
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [recentMatches, setRecentMatches] = useState([]);
-
+  const [team, setTeam] = useState({});
   useEffect(() => {
+
+      const fetchPlayerData = async () => {
+        const user_id = localStorage.getItem('user_id');
+        const authToken = localStorage.getItem('authToken');
+        try {
+          const response = await fetch('http://localhost:5000/slms/player/getPlayer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ user_id }),
+          });
+  
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('team_id', data.data[0].team_id);
+            setTeam(data);
+          } else {
+            console.error('Failed to fetch player data');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+  
+      fetchPlayerData();
+  
+    
     // Mock data for matches
     const allMatches = [
       {
