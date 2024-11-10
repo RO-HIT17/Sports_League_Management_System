@@ -1,15 +1,15 @@
 'use client';
 import Link from "next/link";
-import { useRouter } from 'next/navigation'; // Correct import for useRouter
-import { useState } from 'react'; // Import useState from React
-import { Button, Input, Spacer } from "@nextui-org/react"; // Importing Button, Input, and Spacer from Next UI
+import { useRouter } from 'next/navigation'; 
+import { useState } from 'react'; 
+import { Button, Input, Spacer } from "@nextui-org/react"; 
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
 } from "@nextui-org/card"; 
-import { FaGoogle, FaLinkedin } from "react-icons/fa"; 
+import { FaGoogle } from "react-icons/fa"; 
 import { title } from "@/components/primitives";
 
 export const description =
@@ -25,7 +25,6 @@ export const description =
       const email = e.currentTarget.email.value;
       const password = e.currentTarget.password.value;
   
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         setError('Please enter a valid email address');
@@ -33,7 +32,7 @@ export const description =
       }
   
       try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
+        const response = await fetch('http://localhost:5000/slms/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -50,9 +49,26 @@ export const description =
         const data = await response.json();
   
         localStorage.setItem('authToken', data.token);
-        localStorage.setItem('id', data.id);
+        localStorage.setItem('user_id', data.user.user_id);
         
-        router.push('/home');
+        switch (data.user.role) {
+          case 'player':
+            router.push('/player/dashboard');
+            break;
+          case 'teammanager':
+            router.push('/team/dashboard');
+            break;
+          case 'leaguemanager':
+            router.push('/league/dashboard');
+            break;
+          case 'admin':
+            router.push('/admin/dashboard');
+            break;
+          default:
+            router.push('/');
+            break;
+        }
+
       } catch (error) {
         setError('An error occurred during login');
       }

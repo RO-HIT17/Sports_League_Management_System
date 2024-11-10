@@ -13,8 +13,8 @@ export const register = async (req: Request, res: Response) : Promise<void> => {
 };
 
 export const login = async (req: Request, res: Response) : Promise<void> => {
-    const { username, password } = req.body;
-    const result = await query('SELECT * FROM users WHERE username = $1', [username]);
+    const { email, password } = req.body;
+    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
     if (!user) {
         res.status(401).send('Invalid credentials');
@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response) : Promise<void> => {
         return;
     }
     const token = generateToken(user);
-    res.send({ token });
+    res.send({ user, token });
 };
 
 export const getUsers = async (req: Request, res: Response) : Promise<void> => {
