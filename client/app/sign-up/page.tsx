@@ -88,11 +88,12 @@ const SignUpPage: React.FC = () => {
       const data = await response.json();
       console.log('User registered successfully:', data);
 
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('user_id', data.user_id);
-
-      
-      switch (data.role) {
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user_id', data.user.user_id);
+      localStorage.setItem('role', data.user.role);
+      localStorage.setItem('name', data.user.name);
+    
+      switch (data.user.role) {
         case 'player':
           router.push('/player/dashboard');
           break;

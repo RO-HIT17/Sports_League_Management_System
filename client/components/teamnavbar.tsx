@@ -18,8 +18,31 @@ import { siteConfig } from '@/config/site';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { TwitterIcon, GithubIcon, DiscordIcon, Logo } from '@/components/icons';
 import { User } from '@nextui-org/user';
+import { useState ,useEffect } from "react";
+
 
 const TeamNavbar = () => {
+
+  const [role, setRole] = useState<string>('');
+  const [name, setName] = useState<string>('');
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    const storedName = localStorage.getItem('name'); 
+    if (storedRole) setRole(storedRole);
+    if (storedName) setName(storedName);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('role');
+    localStorage.removeItem('name');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user_id');
+    
+    window.location.href = '/login';
+  };
+
+
   return (
     <NextUINavbar maxWidth="full" className="w-full" position="sticky">
       <NavbarContent className="basis-full" justify="start">
@@ -65,7 +88,12 @@ const TeamNavbar = () => {
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
-          <User name="John Doe" description="Team Manager" />
+          <User name={name} description={role} />
+        </NavbarItem>
+        <NavbarItem className="hidden md:flex">
+          <Button auto flat onClick={handleLogout}>
+            Logout
+          </Button>
         </NavbarItem>
       </NavbarContent>
 
@@ -93,6 +121,11 @@ const TeamNavbar = () => {
             <Link color="foreground" href="/team/matches">
               Match Overview
             </Link>
+          </NavbarMenuItem>
+          <NavbarMenuItem>
+            <Button auto flat color="error" onClick={handleLogout}>
+              Logout
+            </Button>
           </NavbarMenuItem>
         </div>
       </NavbarMenu>
