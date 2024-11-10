@@ -16,7 +16,7 @@ const SquadView = () => {
   const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
-    // Mock data for leagues, teams, and players
+   
     const leagueData = [
       {
         league_id: 1,

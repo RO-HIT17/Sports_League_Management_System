@@ -33,6 +33,7 @@ const TeamManager = () => {
     player_name: '',
     position: '',
     age: '',
+    user_id: '',
   });
   const [leagues, setLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
@@ -123,7 +124,7 @@ const TeamManager = () => {
     };
 
     const fetchLeagues = async () => {
-      // Fetch leagues logic (Replace with actual API call)
+      
       const authToken = localStorage.getItem('authToken');
 
       try {
@@ -162,6 +163,17 @@ const TeamManager = () => {
     const authToken = localStorage.getItem('authToken');
     const team_id = localStorage.getItem('team_id');
 
+    const payload: any = {
+      player_name: newPlayer.player_name,
+      team_id: team_id,
+      position: newPlayer.position,
+      age: newPlayer.age,
+    };
+
+    if (newPlayer.user_id.trim() !== '') {
+      payload.user_id = newPlayer.user_id.trim();
+    }
+
     try {
       const response = await fetch('http://localhost:5000/slms/team/addPlayer', {
         method: 'POST',
@@ -169,12 +181,7 @@ const TeamManager = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`,
         },
-        body: JSON.stringify({
-          player_name: newPlayer.player_name,
-          team_id: team_id,
-          position: newPlayer.position,
-          age: newPlayer.age,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -282,7 +289,7 @@ const TeamManager = () => {
       alert('Please select a league to register.');
       return;
     }
-    // Register team in league logic (Replace with actual API call)
+    
     const registeredLeague = leagues.find((l) => l.league_id === selectedLeague);
     console.log(`Team ${teamId} registered in league ${registeredLeague.league_name}`);
     toggleRegisterLeagueModal(false);
@@ -412,6 +419,16 @@ const TeamManager = () => {
               value={newPlayer.age}
               onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
             />
+            <Input
+              clearable
+              fullWidth
+              label="User ID (optional)"
+              value={newPlayer.user_id}
+              onChange={(e) =>
+                setNewPlayer({ ...newPlayer, user_id: e.target.value })
+              }
+              placeholder="Enter User ID"
+            />
           </ModalBody>
           <ModalFooter>
             <Button flat color="default" onPress={() => toggleAddPlayerModal(false)}>
@@ -424,7 +441,7 @@ const TeamManager = () => {
         </ModalContent>
       </Modal>
 
-      {/* Edit Player Modal */}
+      
       <Modal isOpen={isEditPlayerModalOpen} onOpenChange={toggleEditPlayerModal}>
         <ModalContent>
           <ModalHeader>Edit Player</ModalHeader>
