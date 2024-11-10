@@ -53,7 +53,7 @@ const PlayerProfile = () => {
       coach_name: 'Coach Smith',
     };
 
-    // Mock data for leagues
+    
     const leagueData = [
       {
         league_id: 1,

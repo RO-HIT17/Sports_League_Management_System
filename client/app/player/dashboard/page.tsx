@@ -97,7 +97,7 @@ const Dashboard = () => {
         home_team_score: null,
         away_team_score: null,
       },
-      // Add more matches as needed
+      
     ];
 
     const upcoming = allMatches.filter(
@@ -106,7 +106,7 @@ const Dashboard = () => {
         match.home_team_score === null &&
         match.away_team_score === null
     );
-    console.log('Upcoming Matches:', upcoming); // Debugging log
+    console.log('Upcoming Matches:', upcoming); 
     setUpcomingMatches(upcoming);
 
     const recent = allMatches.filter(
@@ -116,13 +116,13 @@ const Dashboard = () => {
         match.home_team_score !== null &&
         match.away_team_score !== null
     );
-    console.log('Recent Matches:', recent); // Debugging log
+    console.log('Recent Matches:', recent); 
     setRecentMatches(recent);
   }, [teamId]);
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Upcoming Matches */}
+      
       <Card style={{ marginBottom: '16px' }}>
         <CardHeader>
           <h3 style={{ fontSize: '24px'}}>Upcoming Matches</h3>
@@ -163,7 +163,7 @@ const Dashboard = () => {
         </CardBody>
       </Card>
 
-      {/* Recent Matches */}
+      
       <Card>
         <CardHeader>
           <h3 style={{ fontSize: '24px'}}>Recent Matches</h3>
