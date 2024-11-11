@@ -13,29 +13,47 @@ import {
 } from '@nextui-org/react';
 
 const PlayerProfile = () => {
-  const playerId = 1; // Replace with actual player ID
+  const playerId = 1; 
   const [playerInfo, setPlayerInfo] = useState(null);
   const [teamInfo, setTeamInfo] = useState(null);
   const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
-    // Mock data for player
-    const playerData = {
-      player_id: 1,
-      player_name: 'John Doe',
-      position: 'Forward',
-      age: 25,
-      team_id: 1,
+    
+    const fetchPlayerData = async () => {
+      const user_id = localStorage.getItem('user_id');
+      const authToken = localStorage.getItem('authToken');
+      try {
+        const response = await fetch('http://localhost:5000/slms/player/getPlayer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ user_id }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setPlayerInfo(data.data[0]);
+        } else {
+          console.error('Failed to fetch player data');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
     };
 
-    // Mock data for team
+    fetchPlayerData();
+
+    
     const teamData = {
       team_id: 1,
       team_name: 'Eagles FC',
       coach_name: 'Coach Smith',
     };
 
-    // Mock data for leagues
+    
     const leagueData = [
       {
         league_id: 1,
@@ -51,8 +69,8 @@ const PlayerProfile = () => {
       },
     ];
 
-    // Set state with mock data
-    setPlayerInfo(playerData);
+    
+    
     setTeamInfo(teamData);
     setLeagues(leagueData);
   }, [playerId]);
@@ -72,10 +90,12 @@ const PlayerProfile = () => {
           <p>Name: {playerInfo.player_name}</p>
           <p>Position: {playerInfo.position}</p>
           <p>Age: {playerInfo.age}</p>
+          <p>User Name: {playerInfo.username}</p>
+          <p>Email: {playerInfo.email}</p>
         </CardBody>
       </Card>
 
-      {/* League Participation */}
+      
       <Card style={{ flex: 2 }}>
         <CardHeader style={{ fontSize: '24px' }}>
           <h3>League Participation</h3>

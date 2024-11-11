@@ -42,7 +42,7 @@ const Leaderboard = () => {
       }
 
       try {
-        // Fetch team data
+        
         const teamResponse = await fetch('http://localhost:5000/slms/team/getTeam', {
           method: 'POST',
           headers: {
@@ -60,7 +60,7 @@ const Leaderboard = () => {
         setTeamId(teamData.team_id);
         localStorage.setItem('team_id', teamData.team_id);
 
-        // Set static teams data for leaderboard
+        
         const staticTeamsData = [
           { team_id: 1, team_name: 'Eagles FC', wins: 10, losses: 2, points: 32 },
           { team_id: 2, team_name: 'Tigers FC', wins: 8, losses: 4, points: 28 },
@@ -69,7 +69,7 @@ const Leaderboard = () => {
         ];
         setTeams(staticTeamsData);
 
-        // Fetch players based on team_id
+        
         await fetchPlayers(teamData.team_id);
 
       } catch (error) {
@@ -110,7 +110,7 @@ const Leaderboard = () => {
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Leaderboard */}
+      
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Leaderboard</h3>
@@ -156,7 +156,7 @@ const Leaderboard = () => {
         </CardBody>
       </Card>
 
-      {/* Players */}
+      
       <Card>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Players</h3>

@@ -35,13 +35,13 @@ export const getTeamIdByUserId = async (req: Request, res: Response): Promise<vo
 };
 
 export const addPlayer = async (req: Request, res: Response): Promise<void> => {
-    const { player_name, team_id, position, age } = req.body;
+    const { player_name, team_id, position, age,user_id } = req.body;
   
     try {
       
       const result = await query(
-        'INSERT INTO Players (player_name, team_id, position, age) VALUES ($1, $2, $3, $4) RETURNING *',
-        [player_name, team_id, position, age]
+        'INSERT INTO Players (player_name, team_id, position, age, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [player_name, team_id, position, age, user_id]
       );
   
       res.status(201).json(result.rows[0]);

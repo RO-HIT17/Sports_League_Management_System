@@ -13,11 +13,40 @@ import {
 } from '@nextui-org/react';
 
 const Dashboard = () => {
-  const teamId = 1; // Replace with actual team ID
+  const teamId = 1; 
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [recentMatches, setRecentMatches] = useState([]);
-
+  const [team, setTeam] = useState({});
   useEffect(() => {
+
+      const fetchPlayerData = async () => {
+        const user_id = localStorage.getItem('user_id');
+        const authToken = localStorage.getItem('authToken');
+        try {
+          const response = await fetch('http://localhost:5000/slms/player/getPlayer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ user_id }),
+          });
+  
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('team_id', data.data[0].team_id);
+            setTeam(data);
+          } else {
+            console.error('Failed to fetch player data');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+  
+      fetchPlayerData();
+  
+    
     // Mock data for matches
     const allMatches = [
       {
@@ -68,7 +97,7 @@ const Dashboard = () => {
         home_team_score: null,
         away_team_score: null,
       },
-      // Add more matches as needed
+      
     ];
 
     const upcoming = allMatches.filter(
@@ -77,7 +106,7 @@ const Dashboard = () => {
         match.home_team_score === null &&
         match.away_team_score === null
     );
-    console.log('Upcoming Matches:', upcoming); // Debugging log
+    console.log('Upcoming Matches:', upcoming); 
     setUpcomingMatches(upcoming);
 
     const recent = allMatches.filter(
@@ -87,13 +116,13 @@ const Dashboard = () => {
         match.home_team_score !== null &&
         match.away_team_score !== null
     );
-    console.log('Recent Matches:', recent); // Debugging log
+    console.log('Recent Matches:', recent); 
     setRecentMatches(recent);
   }, [teamId]);
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Upcoming Matches */}
+      
       <Card style={{ marginBottom: '16px' }}>
         <CardHeader>
           <h3 style={{ fontSize: '24px'}}>Upcoming Matches</h3>
@@ -134,7 +163,7 @@ const Dashboard = () => {
         </CardBody>
       </Card>
 
-      {/* Recent Matches */}
+      
       <Card>
         <CardHeader>
           <h3 style={{ fontSize: '24px'}}>Recent Matches</h3>
