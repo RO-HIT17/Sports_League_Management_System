@@ -37,63 +37,31 @@ const LeagueManagement = () => {
   });
 
   useEffect(() => {
-    // Fetch new teams for approval
-    const fetchNewTeams = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/slms/teams/new');
-        if (!response.ok) {
-          throw new Error('Failed to fetch new teams');
-        }
-        const data = await response.json();
-        setNewTeams(data);
-      } catch (error) {
-        console.error('Error fetching new teams:', error);
-      }
-    };
+    // Hardcoded data for new teams
+    const staticNewTeamsData: Team[] = [
+      { team_id: 1, team_name: 'Eagles FC', coach_name: 'John Doe', created_at: '2023-10-01T10:00:00Z' },
+      { team_id: 2, team_name: 'Tigers FC', coach_name: 'Jane Smith', created_at: '2023-10-02T11:00:00Z' },
+    ];
+    setNewTeams(staticNewTeamsData);
 
-    // Fetch approved teams
-    const fetchApprovedTeams = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/slms/teams/approved');
-        if (!response.ok) {
-          throw new Error('Failed to fetch approved teams');
-        }
-        const data = await response.json();
-        setApprovedTeams(data);
-      } catch (error) {
-        console.error('Error fetching approved teams:', error);
-      }
-    };
+    // Hardcoded data for approved teams
+    const staticApprovedTeamsData: Team[] = [
+      { team_id: 3, team_name: 'Lions FC', coach_name: 'Mike Johnson', created_at: '2023-09-01T09:00:00Z' },
+      { team_id: 4, team_name: 'Bears FC', coach_name: 'Emily Davis', created_at: '2023-09-02T08:00:00Z' },
+    ];
+    setApprovedTeams(staticApprovedTeamsData);
 
-    // Fetch league info
-    const fetchLeagueInfo = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/slms/league/info');
-        if (!response.ok) {
-          throw new Error('Failed to fetch league info');
-        }
-        const data = await response.json();
-        setLeagueInfo(data);
-      } catch (error) {
-        console.error('Error fetching league info:', error);
-      }
+    // Hardcoded data for league info
+    const staticLeagueInfo: Partial<League> = {
+      league_name: 'Premier League',
+      sport_type: 'Soccer',
     };
-
-    fetchNewTeams();
-    fetchApprovedTeams();
-    fetchLeagueInfo();
+    setLeagueInfo(staticLeagueInfo);
   }, []);
 
   const handleApproveTeam = async (team_id: number) => {
     try {
-      const response = await fetch(`http://localhost:5000/slms/teams/approve/${team_id}`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to approve team');
-      }
-
+      // Simulate API call
       setNewTeams(newTeams.filter((team) => team.team_id !== team_id));
       const approvedTeam = newTeams.find((team) => team.team_id === team_id);
       if (approvedTeam) {
@@ -104,22 +72,19 @@ const LeagueManagement = () => {
     }
   };
 
+  const handleRejectTeam = async (team_id: number) => {
+    try {
+      // Simulate API call
+      setNewTeams(newTeams.filter((team) => team.team_id !== team_id));
+    } catch (error) {
+      console.error('Error rejecting team:', error);
+    }
+  };
+
   const handleUpdateLeagueInfo = async () => {
     try {
-      const response = await fetch('http://localhost:5000/slms/league/update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(leagueInfo),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update league info');
-      }
-
-      const updatedInfo = await response.json();
-      setLeagueInfo(updatedInfo);
+      // Simulate API call
+      setLeagueInfo(leagueInfo);
     } catch (error) {
       console.error('Error updating league info:', error);
     }
@@ -151,7 +116,8 @@ const LeagueManagement = () => {
                     <TableCell>{team.coach_name}</TableCell>
                     <TableCell>{new Date(team.created_at).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Button onClick={() => handleApproveTeam(team.team_id)}>Approve</Button>
+                      <Button onClick={() => handleApproveTeam(team.team_id)} color="success" variant="bordered" style={{ marginRight: '8px' }}>Approve</Button>
+                      <Button onClick={() => handleRejectTeam(team.team_id)} color="danger" variant="bordered">Reject</Button>
                     </TableCell>
                   </TableRow>
                 ))}
