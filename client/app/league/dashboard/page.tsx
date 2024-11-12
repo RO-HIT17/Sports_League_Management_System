@@ -54,6 +54,40 @@ const LeagueDashboard = () => {
     setUpcomingMatches(staticMatchesData);
   }, []);
 
+  const fetchLeagueId = async () => {
+    const user_id = localStorage.getItem('user_id');
+    const authToken = localStorage.getItem('authToken');
+    if (!user_id) {
+      console.error('No user_id found in local storage');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/slms/league/getLeagueByCreatedBy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ user_id }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('league_id', data.league_id);
+        console.log(`League ID ${data.league_id} stored in local storage`);
+      } else {
+        console.error('Failed to fetch league ID');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeagueId();
+  }, []);
+
   return (
     <div style={{ padding: '16px' }}>
       {/* Leaderboard */}

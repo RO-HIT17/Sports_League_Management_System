@@ -35,64 +35,143 @@ const LeagueManagement = () => {
     league_name: '',
     sport_type: '',
   });
-
-  useEffect(() => {
-    // Hardcoded data for new teams
-    const staticNewTeamsData: Team[] = [
-      { team_id: 1, team_name: 'Eagles FC', coach_name: 'John Doe', created_at: '2023-10-01T10:00:00Z' },
-      { team_id: 2, team_name: 'Tigers FC', coach_name: 'Jane Smith', created_at: '2023-10-02T11:00:00Z' },
-    ];
-    setNewTeams(staticNewTeamsData);
-
-    // Hardcoded data for approved teams
-    const staticApprovedTeamsData: Team[] = [
-      { team_id: 3, team_name: 'Lions FC', coach_name: 'Mike Johnson', created_at: '2023-09-01T09:00:00Z' },
-      { team_id: 4, team_name: 'Bears FC', coach_name: 'Emily Davis', created_at: '2023-09-02T08:00:00Z' },
-    ];
-    setApprovedTeams(staticApprovedTeamsData);
-
-    // Hardcoded data for league info
-    const staticLeagueInfo: Partial<League> = {
-      league_name: 'Premier League',
-      sport_type: 'Soccer',
-    };
-    setLeagueInfo(staticLeagueInfo);
-  }, []);
-
-  const handleApproveTeam = async (team_id: number) => {
+  
+  const fetchPendingTeams = async () => {
+    const authToken = localStorage.getItem('authToken');
     try {
-      // Simulate API call
-      setNewTeams(newTeams.filter((team) => team.team_id !== team_id));
-      const approvedTeam = newTeams.find((team) => team.team_id === team_id);
-      if (approvedTeam) {
-        setApprovedTeams([...approvedTeams, approvedTeam]);
+      const response = await fetch('http://localhost:5000/slms/league/getPendingTeams', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setNewTeams(data);
+      } else {
+        console.error('Failed to fetch pending teams');
       }
     } catch (error) {
-      console.error('Error approving team:', error);
+      console.error('Error:', error);
     }
   };
 
-  const handleRejectTeam = async (team_id: number) => {
+  const fetchApprovedTeams = async () => {
+    const authToken = localStorage.getItem('authToken');
     try {
-      // Simulate API call
-      setNewTeams(newTeams.filter((team) => team.team_id !== team_id));
+      const response = await fetch('http://localhost:5000/slms/league/getApprovedTeams', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setApprovedTeams(data);
+      } else {
+        console.error('Failed to fetch approved teams');
+      }
     } catch (error) {
-      console.error('Error rejecting team:', error);
+      console.error('Error:', error);
+    }
+  };
+
+  const fetchLeagueInfo = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const league_id = localStorage.getItem('league_id');
+    if (!league_id) {
+      console.error('No league_id found in local storage');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:5000/slms/league/getLeagueById', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ league_id }),
+      });
+  
+      if (response.ok) {
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : {};
+        setLeagueInfo(data);
+      } else {
+        console.error('Failed to fetch league info');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingTeams();
+    fetchApprovedTeams();
+    fetchLeagueInfo();
+  }, []);
+
+  const updateTeamStatus = async (team_id: number, status: string) => {
+    const authToken = localStorage.getItem('authToken');
+    try {
+      const response = await fetch('http://localhost:5000/slms/league/updateStatus', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ team_id, status }),
+      });
+
+      if (response.ok) {
+        
+        fetchPendingTeams();
+        fetchApprovedTeams();
+      } else {
+        console.error('Failed to update team status');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
   const handleUpdateLeagueInfo = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const league_id = localStorage.getItem('league_id');
+    if (!league_id) {
+      console.error('No league_id found in local storage');
+      return;
+    }
+    const updatedInfo = {
+      league_id, 
+      league_name: leagueInfo.league_name,
+      sport_type: leagueInfo.sport_type,
+    };
+  
     try {
-      // Simulate API call
-      setLeagueInfo(leagueInfo);
+      const response = await fetch('http://localhost:5000/slms/league/updateLeagueInfo', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(updatedInfo),
+      });
+  
+      if (response.ok) {
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : {};
+        setLeagueInfo(data);
+        fetchLeagueInfo();
+      } else {
+        console.error('Failed to edit league info');
+      }
     } catch (error) {
-      console.error('Error updating league info:', error);
+      console.error('Error:', error);
     }
   };
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Approve New Teams */}
+      
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Approve New Teams</h3>
@@ -116,8 +195,8 @@ const LeagueManagement = () => {
                     <TableCell>{team.coach_name}</TableCell>
                     <TableCell>{new Date(team.created_at).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Button onClick={() => handleApproveTeam(team.team_id)} color="success" variant="bordered" style={{ marginRight: '8px' }}>Approve</Button>
-                      <Button onClick={() => handleRejectTeam(team.team_id)} color="danger" variant="bordered">Reject</Button>
+                      <Button onClick={() => updateTeamStatus(team.team_id, 'approved')} color="success" variant="bordered" style={{ marginRight: '8px' }}>Approve</Button>
+                      <Button onClick={() => updateTeamStatus(team.team_id, 'rejected')} color="danger" variant="bordered">Reject</Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -161,7 +240,7 @@ const LeagueManagement = () => {
         </CardBody>
       </Card>
 
-      {/* Edit League Info */}
+      
       <Card>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Edit League Info</h3>
