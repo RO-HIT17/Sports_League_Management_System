@@ -100,3 +100,29 @@ export const updatePlayer = async (req: Request, res: Response): Promise<void> =
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+export const getLeagues = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await query('SELECT * FROM Leagues');
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching leagues:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const registerInLeague = async (req: Request, res: Response): Promise<void> => {
+  const { team_id, league_id } = req.body;
+
+  try {
+    const result = await query(
+      'UPDATE Teams SET league_id = $2, status = $3 WHERE team_id = $1 RETURNING *',
+      [team_id, league_id, 'pending']
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error registering team in league:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
