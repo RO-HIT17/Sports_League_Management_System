@@ -128,7 +128,7 @@ const TeamManager = () => {
       const authToken = localStorage.getItem('authToken');
 
       try {
-        const response = await fetch('http://localhost:5000/slms/league/getLeagues', {
+        const response = await fetch('http://localhost:5000/slms/team/getLeagues', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -284,16 +284,43 @@ const TeamManager = () => {
     }
   };
 
-  const handleRegisterLeague = () => {
+  const handleRegisterLeague = async () => {
     if (!selectedLeague) {
       alert('Please select a league to register.');
       return;
     }
     
+    const authToken = localStorage.getItem('authToken');
     const registeredLeague = leagues.find((l) => l.league_id === selectedLeague);
-    console.log(`Team ${teamId} registered in league ${registeredLeague.league_name}`);
-    toggleRegisterLeagueModal(false);
-    setSelectedLeague(null);
+    const team_id = localStorage.getItem('team_id'); 
+  
+    if (!team_id) {
+      console.error('No team_id found in local storage');
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:5000/slms/team/registerInLeague', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ team_id, league_id: selectedLeague }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Team ${team_id} registered in league ${registeredLeague.league_name}`);
+        alert('Registration successful. Waiting for approval.'); 
+        toggleRegisterLeagueModal(false);
+        setSelectedLeague(null);
+      } else {
+        console.error('Failed to register team in league');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const openEditPlayerModal = (player: any) => {
