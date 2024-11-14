@@ -67,3 +67,27 @@ export const getLeagueById = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+export const scheduleMatch = async (req: Request, res: Response): Promise<void> => {
+  const { league_id, home_team, away_team, match_date, location } = req.body;
+
+  try {
+    await query('INSERT INTO Schedules (league_id, home_team, away_team, match_date, location) VALUES ($1, $2, $3, $4, $5)', [league_id, home_team, away_team, match_date, location]);
+    res.status(201).end();
+  } catch (error) {
+    console.error('Error scheduling match:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export const getTeamsByLeagueId = async (req: Request, res: Response): Promise<void> => {
+  const { league_id } = req.body;
+
+  try {
+    const result = await query('SELECT * FROM Teams WHERE league_id = $1', [league_id]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

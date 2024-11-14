@@ -13,7 +13,7 @@ import {
   Button,
   Input,
   Select,
-  Option,
+  SelectOption,
 } from '@nextui-org/react';
 
 type Team = {
@@ -40,36 +40,48 @@ const MatchScheduling = () => {
   });
 
   useEffect(() => {
-    // Fetch teams
+    const league_id = localStorage.getItem('league_id');
+    const authToken = localStorage.getItem('authToken');
     const fetchTeams = async () => {
       try {
-        const response = await fetch('http://localhost:5000/slms/teams');
+        const response = await fetch('http://localhost:5000/slms/league/getTeamsByLeagueId', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ league_id }),
+        });
+        
+        
         if (!response.ok) {
           throw new Error('Failed to fetch teams');
         }
         const data = await response.json();
-        setTeams(data);
+        console.log(data);
+        const teamNames = data.map((team: Team) => team.team_name);
+        setTeams(teamNames);
       } catch (error) {
         console.error('Error fetching teams:', error);
       }
     };
 
     // Fetch matches
-    const fetchMatches = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/slms/matches');
-        if (!response.ok) {
-          throw new Error('Failed to fetch matches');
-        }
-        const data = await response.json();
-        setMatches(data);
-      } catch (error) {
-        console.error('Error fetching matches:', error);
-      }
-    };
+    // const fetchMatches = async () => {
+    //   try {
+    //     const response = await fetch('http://localhost:5000/slms/matches');
+    //     if (!response.ok) {
+    //       throw new Error('Failed to fetch matches');
+    //     }
+    //     const data = await response.json();
+    //     setMatches(data);
+    //   } catch (error) {
+    //     console.error('Error fetching matches:', error);
+    //   }
+    // };
 
     fetchTeams();
-    fetchMatches();
+    //fetchMatches();
   }, []);
 
   const handleScheduleMatch = async () => {
@@ -109,7 +121,7 @@ const MatchScheduling = () => {
               onChange={(e) => setNewMatch({ ...newMatch, home_team_id: Number(e.target.value) })}
             >
               {teams.map((team) => (
-                <Option key={team.team_id} value={team.team_id}>
+                <SelectOption key={team.team_id} value={team.team_id}>
                   {team.team_name}
                 </Option>
               ))}
