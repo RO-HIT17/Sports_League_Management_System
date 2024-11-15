@@ -13,12 +13,19 @@ import {
   Button,
   Input,
   Select,
-  SelectOption,
+  SelectItem,
 } from '@nextui-org/react';
 
 type Team = {
   team_id: number;
   team_name: string;
+  coach_name : string;
+  created_at: string;
+  created_by: number;
+  team_type: string;
+  status: string;
+  league_id: number;
+
 };
 
 type Match = {
@@ -44,44 +51,41 @@ const MatchScheduling = () => {
     const authToken = localStorage.getItem('authToken');
     const fetchTeams = async () => {
       try {
-        const response = await fetch('http://localhost:5000/slms/league/getTeamsByLeagueId', {
+        const response = await fetch('http://localhost:5000/slms/league/getTeamsByLeagueId' , {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
+            'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ league_id }),
+          body: JSON.stringify({ league_id })
         });
-        
-        
         if (!response.ok) {
           throw new Error('Failed to fetch teams');
         }
         const data = await response.json();
         console.log(data);
-        const teamNames = data.map((team: Team) => team.team_name);
-        setTeams(teamNames);
+        setTeams(data);
       } catch (error) {
         console.error('Error fetching teams:', error);
       }
     };
 
-    // Fetch matches
-    // const fetchMatches = async () => {
-    //   try {
-    //     const response = await fetch('http://localhost:5000/slms/matches');
-    //     if (!response.ok) {
-    //       throw new Error('Failed to fetch matches');
-    //     }
-    //     const data = await response.json();
-    //     setMatches(data);
-    //   } catch (error) {
-    //     console.error('Error fetching matches:', error);
-    //   }
-    // };
+    
+    const fetchMatches = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/slms/matches');
+        if (!response.ok) {
+          throw new Error('Failed to fetch matches');
+        }
+        const data = await response.json();
+        setMatches(data);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+      }
+    };
 
     fetchTeams();
-    //fetchMatches();
+    fetchMatches();
   }, []);
 
   const handleScheduleMatch = async () => {
@@ -108,7 +112,7 @@ const MatchScheduling = () => {
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Schedule Matches */}
+      
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Schedule Match</h3>
@@ -121,20 +125,20 @@ const MatchScheduling = () => {
               onChange={(e) => setNewMatch({ ...newMatch, home_team_id: Number(e.target.value) })}
             >
               {teams.map((team) => (
-                <SelectOption key={team.team_id} value={team.team_id}>
+                <SelectItem key={team.team_id} value={team.team_id}>
                   {team.team_name}
-                </Option>
+                </SelectItem>
               ))}
             </Select>
             <Select
               placeholder="Select Away Team"
-              value={newMatch.away_team_id}
-              onChange={(e) => setNewMatch({ ...newMatch, away_team_id: Number(e.target.value) })}
+              value={newMatch.home_team_id}
+              onChange={(e) => setNewMatch({ ...newMatch, home_team_id: Number(e.target.value) })}
             >
               {teams.map((team) => (
-                <Option key={team.team_id} value={team.team_id}>
+                <SelectItem key={team.team_id} value={team.team_id}>
                   {team.team_name}
-                </Option>
+                </SelectItem>
               ))}
             </Select>
             <Input
@@ -153,7 +157,7 @@ const MatchScheduling = () => {
         </CardBody>
       </Card>
 
-      {/* View Schedule */}
+      
       <Card>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Match Schedule</h3>
