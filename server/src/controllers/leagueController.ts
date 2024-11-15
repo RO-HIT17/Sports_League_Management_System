@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { query } from '../config/db';
 
+
 export const updateStatus = async (req: Request, res: Response): Promise<void> => {
   const { team_id, status } = req.body;
 
@@ -42,7 +43,7 @@ export const getApprovedTeams = async (req: Request, res: Response): Promise<voi
     console.error('Error fetching approved teams:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 export const updateLeagueInfo = async (req: Request, res: Response): Promise<void> => {
   const { league_id, league_name, sport_type } = req.body;
@@ -66,7 +67,7 @@ export const getLeagueById = async (req: Request, res: Response): Promise<void> 
     console.error('Error fetching league:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 export const scheduleMatch = async (req: Request, res: Response): Promise<void> => {
   const { league_id, home_team, away_team, match_date, location } = req.body;
@@ -78,7 +79,7 @@ export const scheduleMatch = async (req: Request, res: Response): Promise<void> 
     console.error('Error scheduling match:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 export const getTeamsByLeagueId = async (req: Request, res: Response): Promise<void> => {
   const { league_id } = req.body;
@@ -90,4 +91,28 @@ export const getTeamsByLeagueId = async (req: Request, res: Response): Promise<v
     console.error('Error fetching teams:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
+
+export const addMatches = async (req: Request, res: Response): Promise<void> => {
+  const { home_team_id , away_team_id ,match_date ,location , league_id } = req.body;
+
+  try {
+    const result = await query('INSERT INTO Matches (home_team_id, away_team_id, match_date, location, league_id) VALUES ($1, $2, $3, $4, $5) RETURNING *', [home_team_id, away_team_id, match_date, location, league_id]);
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getMatchesByLeagueId = async (req: Request, res: Response): Promise<void> => {
+  const { league_id } = req.body;
+
+  try {
+    const result = await query('SELECT * FROM Matches WHERE league_id = $1', [league_id]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

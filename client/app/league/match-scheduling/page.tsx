@@ -29,21 +29,23 @@ type Team = {
 };
 
 type Match = {
-  match_id: number;
-  home_team_id: number;
-  away_team_id: number;
+  match_id: string;
+  home_team_id: string;
+  away_team_id: string;
   match_date: string;
   location: string;
+  league_id: string;
 };
 
 const MatchScheduling = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [newMatch, setNewMatch] = useState<Partial<Match>>({
-    home_team_id: undefined,
-    away_team_id: undefined,
+    home_team_id: '',
+    away_team_id: '',
     match_date: '',
     location: '',
+    league_id: '',
   });
 
   useEffect(() => {
@@ -72,8 +74,18 @@ const MatchScheduling = () => {
 
     
     const fetchMatches = async () => {
+      const league_id = localStorage.getItem('league_id');
+      const authToken = localStorage.getItem('authToken');
+
       try {
-        const response = await fetch('http://localhost:5000/slms/matches');
+        const response = await fetch('http://localhost:5000/slms/league/getMatchesByLeagueId' , {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ league_id })
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch matches');
         }
@@ -89,22 +101,35 @@ const MatchScheduling = () => {
   }, []);
 
   const handleScheduleMatch = async () => {
+    const league_id = localStorage.getItem('league_id');
+    const authToken = localStorage.getItem('authToken');
+
+    const matchData = { ...newMatch, league_id };
+    console.log(matchData);
     try {
-      const response = await fetch('http://localhost:5000/slms/matches', {
+      const response = await fetch('http://localhost:5000/slms/league/addMatches', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify(newMatch),
+        body: JSON.stringify(matchData),
       });
 
       if (!response.ok) {
         throw new Error('Failed to schedule match');
       }
 
-      const scheduledMatch = await response.json();
-      setMatches([...matches, scheduledMatch]);
-      setNewMatch({ home_team_id: undefined, away_team_id: undefined, match_date: '', location: '' });
+      const data = await response.json();
+      setMatches([...matches, data]);
+      setNewMatch({
+        home_team_id: '',
+        away_team_id: '',
+        match_date: '',
+        location: '',
+        league_id: '',
+      });
+
     } catch (error) {
       console.error('Error scheduling match:', error);
     }
@@ -118,25 +143,38 @@ const MatchScheduling = () => {
           <h3>Schedule Match</h3>
         </CardHeader>
         <CardBody>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '16px' }}>
+            <Button onClick={handleScheduleMatch}>Generate Automated Schedule</Button>
+          </div>
+        </CardBody>
+        <CardBody>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Select
+          <Select
               placeholder="Select Home Team"
               value={newMatch.home_team_id}
               onChange={(e) => setNewMatch({ ...newMatch, home_team_id: Number(e.target.value) })}
             >
               {teams.map((team) => (
-                <SelectItem key={team.team_id} value={team.team_id}>
+                <SelectItem
+                  isDisabled={team.team_id === newMatch.away_team_id}
+                  key={team.team_id}
+                  value={team.team_id}
+                >
                   {team.team_name}
                 </SelectItem>
               ))}
             </Select>
             <Select
               placeholder="Select Away Team"
-              value={newMatch.home_team_id}
-              onChange={(e) => setNewMatch({ ...newMatch, home_team_id: Number(e.target.value) })}
+              value={newMatch.away_team_id}
+              onChange={(e) => setNewMatch({ ...newMatch, away_team_id: Number(e.target.value) })}
             >
               {teams.map((team) => (
-                <SelectItem key={team.team_id} value={team.team_id}>
+                <SelectItem
+                  isDisabled={team.team_id === newMatch.home_team_id}
+                  key={team.team_id}
+                  value={team.team_id}
+                >
                   {team.team_name}
                 </SelectItem>
               ))}
