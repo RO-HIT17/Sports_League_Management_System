@@ -126,3 +126,73 @@ export const registerInLeague = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getUpcomingMatches = async (req: Request, res: Response): Promise<void> => {
+  const { team_id } = req.body;
+
+  try {
+const result = await query(
+  `SELECT 
+    m.match_id,
+    m.match_date,
+    m.home_team_id,
+    ht.team_name AS home_team_name,
+    m.away_team_id,
+    at.team_name AS away_team_name,
+    m.location
+    FROM 
+        Matches m
+    INNER JOIN 
+        Teams ht ON m.home_team_id = ht.team_id
+    INNER JOIN 
+        Teams at ON m.away_team_id = at.team_id
+    WHERE 
+        m.match_id IN (
+            SELECT 
+                match_id
+            FROM 
+                Matches
+            WHERE 
+                (home_team_id = $1 OR away_team_id = $1)
+                AND match_date > CURRENT_DATE
+    );`,
+  [team_id]
+);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching upcomming matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getPastMatches = async (req: Request, res: Response): Promise<void> => {
+  const { team_id } = req.body;
+
+  try {
+    const result = await query(
+      `SELECT 
+    m.match_id,
+    m.match_date,
+    m.home_team_id,
+    m.away_team_id,
+    m.location,
+    r.home_team_score,
+    r.away_team_score,
+    FROM 
+        Matches m
+    NATURAL JOIN 
+        Results r
+    WHERE 
+        (m.home_team_id = $1 OR m.away_team_id = $1)
+        AND m.match_date < CURRENT_DATE
+    `,
+      [team_id]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching past matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
