@@ -131,33 +131,30 @@ export const getUpcomingMatches = async (req: Request, res: Response): Promise<v
   const { team_id } = req.body;
 
   try {
-const result = await query(
-  `SELECT 
-    m.match_id,
-    m.match_date,
-    m.home_team_id,
-    ht.team_name AS home_team_name,
-    m.away_team_id,
-    at.team_name AS away_team_name,
-    m.location
-    FROM 
+    const result = await query(
+      `SELECT 
+        TO_CHAR(m.match_date, 'DD/MM/YYYY') AS match_date,
+        TO_CHAR(m.match_date, 'HH24:MI') AS match_time,
+        CASE 
+          WHEN m.home_team_id = $1 THEN at.team_name
+          ELSE ht.team_name
+        END AS opponent,
+        m.location,
+        CASE 
+          WHEN m.home_team_id = $1 THEN 'Home'
+          ELSE 'Away'
+        END AS match_type
+      FROM 
         Matches m
-    INNER JOIN 
+      INNER JOIN 
         Teams ht ON m.home_team_id = ht.team_id
-    INNER JOIN 
+      INNER JOIN 
         Teams at ON m.away_team_id = at.team_id
-    WHERE 
-        m.match_id IN (
-            SELECT 
-                match_id
-            FROM 
-                Matches
-            WHERE 
-                (home_team_id = $1 OR away_team_id = $1)
-                AND match_date > CURRENT_DATE
-    );`,
-  [team_id]
-);
+      WHERE 
+        (m.home_team_id = $1 OR m.away_team_id = $1)
+        AND m.match_date > CURRENT_DATE;`,
+      [team_id]
+    );
 
     res.status(200).json(result.rows);
   } catch (error) {

@@ -15,4 +15,5 @@ router.post('/getTeamsByLeagueId',authenticateJWT, getTeamsByLeagueId);
 router.post('/addMatches',authenticateJWT, addMatches);
 router.post('/getMatchesByLeagueId',authenticateJWT, getMatchesByLeagueId);
 router.post('/automaticScheduling',authenticateJWT, automaticScheduling);
+
 export default router;
