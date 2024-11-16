@@ -134,19 +134,45 @@ const MatchScheduling = () => {
       console.error('Error scheduling match:', error);
     }
   };
-
+  const handleAutomaticSchedule = async () => {
+    const league_id = localStorage.getItem('league_id');
+    const authToken = localStorage.getItem('authToken');
+    try {
+      const response = await fetch('http://localhost:5000/slms/league/automaticScheduling', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ league_id }),
+        });
+          if (!response.ok) {
+            throw new Error('Failed to schedule match');
+          }
+        const data = await response.json();
+        setMatches(data);
+        } 
+        catch (error) {
+          console.error('Error scheduling match:', error);
+        }
+      };
+        
   return (
     <div style={{ padding: '16px' }}>
       
       <Card style={{ marginBottom: '24px' }}>
-        <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
-          <h3>Schedule Match</h3>
-        </CardHeader>
-        <CardBody>
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '16px' }}>
-            <Button onClick={handleScheduleMatch}>Generate Automated Schedule</Button>
-          </div>
-        </CardBody>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
+        <h3>Schedule Match</h3>
+      
+      <Button 
+        onClick={handleAutomaticSchedule} 
+        style={{ marginLeft: 'auto' }}
+      >
+        Generate Automated Schedule
+      </Button>
+      </CardHeader>
+    </div>
         <CardBody>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Select

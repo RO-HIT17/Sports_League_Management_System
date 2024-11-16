@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPendingTeams, updateStatus,getMatchesByLeagueId, addMatches, getTeamsByLeagueId, getLeagueById, getLeagueByCreatedBy, getApprovedTeams,scheduleMatch, updateLeagueInfo } from '../controllers/leagueController';
+import { getPendingTeams, updateStatus,automaticScheduling, getMatchesByLeagueId, addMatches, getTeamsByLeagueId, getLeagueById, getLeagueByCreatedBy, getApprovedTeams,scheduleMatch, updateLeagueInfo } from '../controllers/leagueController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -14,5 +14,5 @@ router.post('/scheduleMatch',authenticateJWT, scheduleMatch);
 router.post('/getTeamsByLeagueId',authenticateJWT, getTeamsByLeagueId);
 router.post('/addMatches',authenticateJWT, addMatches);
 router.post('/getMatchesByLeagueId',authenticateJWT, getMatchesByLeagueId);
-
+router.post('/automaticScheduling',authenticateJWT, automaticScheduling);
 export default router;

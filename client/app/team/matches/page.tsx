@@ -13,12 +13,12 @@ import {
 } from '@nextui-org/react';
 
 const MatchOverview = () => {
-  const teamId = 1; // Replace with the actual team ID managed by the team manager
+  const teamId = 1; 
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [recentMatches, setRecentMatches] = useState([]);
 
   useEffect(() => {
-    // Mock data for upcoming matches
+    
     const matchesData = [
       {
         match_id: 1,
@@ -38,10 +38,10 @@ const MatchOverview = () => {
         away_team_name: 'Eagles FC',
         location: 'Stadium B',
       },
-      // Add more upcoming matches as needed
+      
     ];
 
-    // Mock data for recent matches
+    
     const resultsData = [
       {
         match_id: 3,
@@ -65,27 +65,27 @@ const MatchOverview = () => {
         home_team_score: 2,
         away_team_score: 2,
       },
-      // Add more recent matches as needed
+      
     ];
 
-    // Filter upcoming matches for the current team
+    
     const filteredUpcoming = matchesData.filter(
       (match) => match.home_team_id === teamId || match.away_team_id === teamId
     );
 
-    // Filter recent matches for the current team
+    
     const filteredRecent = resultsData.filter(
       (match) => match.home_team_id === teamId || match.away_team_id === teamId
     );
 
-    // Set state with mock data
+    
     setUpcomingMatches(filteredUpcoming);
     setRecentMatches(filteredRecent);
   }, [teamId]);
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Upcoming Matches */}
+      
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Upcoming Matches</h3>
@@ -136,7 +136,7 @@ const MatchOverview = () => {
         </CardBody>
       </Card>
 
-      {/* Recent Matches */}
+      
       <Card>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Recent Matches</h3>

@@ -116,3 +116,16 @@ export const getMatchesByLeagueId = async (req: Request, res: Response): Promise
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const automaticScheduling = async (req: Request, res: Response): Promise<void> => {
+  const { league_id } = req.body;
+
+  try {
+    await query('CALL generate_schedule($1)', [league_id]);
+    const teams = await query('SELECT * FROM Matches WHERE league_id = $1', [league_id]);
+    res.status(200).json(teams.rows);
+  } catch (error) {
+    console.error('Error automatic scheduling:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
