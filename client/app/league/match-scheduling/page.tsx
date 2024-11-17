@@ -166,6 +166,7 @@ const MatchScheduling = () => {
         <h3>Schedule Match</h3>
       
       <Button 
+      color='primary'
         onClick={handleAutomaticSchedule} 
         style={{ marginLeft: 'auto' }}
       >

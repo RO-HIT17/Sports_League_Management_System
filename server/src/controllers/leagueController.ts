@@ -129,3 +129,37 @@ export const automaticScheduling = async (req: Request, res: Response): Promise<
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+export const matchesList = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {league_id} = req.body;
+    const result = await query(`
+  SELECT 
+  (SELECT team_name FROM teams WHERE team_id = m.home_team_id) || ' vs ' || 
+  (SELECT team_name FROM teams WHERE team_id = m.away_team_id) || ' ' ||
+  TO_CHAR(m.match_date, 'DD/MM/YYYY') || ' ' ||
+  TO_CHAR(m.match_date, 'HH24:MI') AS match,
+  m.match_id
+FROM 
+  matches m
+WHERE 
+  m.league_id = $1;
+  `, [league_id]);
+  
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updateResult = async (req: Request, res: Response): Promise<void> => {
+  const { match_id, home_team_score, away_team_score } = req.body;
+  try {
+    await query('INSERT INTO Results (home_team_score,away_team_score,match_id) VALUES ($1,$2,$3) RETURNING *', [home_team_score, away_team_score, match_id]);
+    res.status(204).end();
+  } catch (error) {
+    console.error('Error updating result:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } 
+};
