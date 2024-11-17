@@ -13,34 +13,29 @@ import {
 } from '@nextui-org/react';
 
 const MatchOverview = () => {
-  const teamId = 1; 
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [recentMatches, setRecentMatches] = useState([]);
-
+  const team_id = localStorage.getItem('team_id');
   useEffect(() => {
     
-    const matchesData = [
-      {
-        match_id: 1,
-        match_date: '2023-11-10T18:00:00',
-        home_team_id: 1,
-        home_team_name: 'Eagles FC',
-        away_team_id: 3,
-        away_team_name: 'Lions FC',
-        location: 'Stadium A',
-      },
-      {
-        match_id: 2,
-        match_date: '2023-11-15T20:00:00',
-        home_team_id: 2,
-        home_team_name: 'Tigers FC',
-        away_team_id: 1,
-        away_team_name: 'Eagles FC',
-        location: 'Stadium B',
-      },
+    const fetchMatches = async () => {
+      const authToken = localStorage.getItem('authToken');
       
-    ];
-
+      try {
+      const response = await fetch('http://localhost:5000/slms/team/getUpcomingMatches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+          },
+        body: JSON.stringify({ team_id }),
+      });
+      const data = await response.json();
+      setUpcomingMatches(data);
+      } catch (error) {
+        console.error('Error fetching upcoming matches:', error);
+      }
+    }
     
     const resultsData = [
       {
@@ -68,20 +63,9 @@ const MatchOverview = () => {
       
     ];
 
-    
-    const filteredUpcoming = matchesData.filter(
-      (match) => match.home_team_id === teamId || match.away_team_id === teamId
-    );
-
-    
-    const filteredRecent = resultsData.filter(
-      (match) => match.home_team_id === teamId || match.away_team_id === teamId
-    );
-
-    
-    setUpcomingMatches(filteredUpcoming);
-    setRecentMatches(filteredRecent);
-  }, [teamId]);
+    fetchMatches();
+    setRecentMatches(resultsData);
+  }, []);
 
   return (
     <div style={{ padding: '16px' }}>
@@ -105,26 +89,18 @@ const MatchOverview = () => {
               </TableHeader>
               <TableBody>
                 {upcomingMatches.map((match) => {
-                  const isHome = match.home_team_id === teamId;
-                  const opponent = isHome
-                    ? match.away_team_name
-                    : match.home_team_name;
-                  const venue = isHome ? 'Home' : 'Away';
-
+                 
                   return (
                     <TableRow key={match.match_id}>
                       <TableCell>
-                        {new Date(match.match_date).toLocaleDateString()}
+                        {match.match_date}
                       </TableCell>
                       <TableCell>
-                        {new Date(match.match_date).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {match.match_time}
                       </TableCell>
-                      <TableCell>{opponent}</TableCell>
+                      <TableCell>{match.opponent}</TableCell>
                       <TableCell>{match.location}</TableCell>
-                      <TableCell>{venue}</TableCell>
+                      <TableCell>{match.match_type}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -156,7 +132,7 @@ const MatchOverview = () => {
               </TableHeader>
               <TableBody>
                 {recentMatches.map((match) => {
-                  const isHome = match.home_team_id === teamId;
+                  const isHome = match.home_team_id === team_id;
                   const opponent = isHome
                     ? match.away_team_name
                     : match.home_team_name;

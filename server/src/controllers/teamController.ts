@@ -192,4 +192,4 @@ export const getPastMatches = async (req: Request, res: Response): Promise<void>
     console.error('Error fetching past matches:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
