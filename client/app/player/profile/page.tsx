@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import {
   Card,
@@ -13,22 +14,25 @@ import {
 } from '@nextui-org/react';
 
 const PlayerProfile = () => {
-  const playerId = 1; 
   const [playerInfo, setPlayerInfo] = useState(null);
   const [teamInfo, setTeamInfo] = useState(null);
-  const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
-    
     const fetchPlayerData = async () => {
       const user_id = localStorage.getItem('user_id');
       const authToken = localStorage.getItem('authToken');
+
+      if (!user_id || !authToken) {
+        console.error('Missing user_id or authToken in localStorage');
+        return;
+      }
+
       try {
         const response = await fetch('http://localhost:5000/slms/player/getPlayer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
+            Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({ user_id }),
         });
@@ -40,40 +44,43 @@ const PlayerProfile = () => {
           console.error('Failed to fetch player data');
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching player data:', error);
+      }
+    };
+
+    const fetchTeamData = async () => {
+      const user_id = localStorage.getItem('user_id');
+      const authToken = localStorage.getItem('authToken');
+
+      if (!user_id || !authToken) {
+        console.error('Missing user_id or authToken in localStorage');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/slms/player/getPlayerTeamInfo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ user_id }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTeamInfo(data);
+        } else {
+          console.error('Failed to fetch team data');
+        }
+      } catch (error) {
+        console.error('Error fetching team data:', error);
       }
     };
 
     fetchPlayerData();
-
-    
-    const teamData = {
-      team_id: 1,
-      team_name: 'Eagles FC',
-      coach_name: 'Coach Smith',
-    };
-
-    
-    const leagueData = [
-      {
-        league_id: 1,
-        league_name: 'Premier League',
-        team_name: 'EFly FC',
-        coach_name: 'Dany Smith',
-      },
-      {
-        league_id: 2,
-        league_name: 'Champions League',
-        team_name: 'Eagles FC',
-        coach_name: 'Coach Smith',
-      },
-    ];
-
-    
-    
-    setTeamInfo(teamData);
-    setLeagues(leagueData);
-  }, [playerId]);
+    fetchTeamData();
+  }, []); 
 
   if (!playerInfo || !teamInfo) {
     return <div>Loading...</div>;
@@ -81,27 +88,27 @@ const PlayerProfile = () => {
 
   return (
     <div style={{ padding: '16px', display: 'flex', gap: '16px' }}>
-      {/* Personal Information */}
+      
       <Card style={{ flex: 1 }}>
-        <CardHeader style={{ fontSize: '24px'}}>
-          <h3>Personal Information</h3>
+        <CardHeader>
+          <h3 style={{ fontSize: '24px' }}>Personal Information</h3>
         </CardHeader>
         <CardBody>
-          <p>Name: {playerInfo.player_name}</p>
-          <p>Position: {playerInfo.position}</p>
-          <p>Age: {playerInfo.age}</p>
-          <p>User Name: {playerInfo.username}</p>
-          <p>Email: {playerInfo.email}</p>
+          <p><strong>Name:</strong> {playerInfo.player_name || 'N/A'}</p>
+          <p><strong>Position:</strong> {playerInfo.position || 'N/A'}</p>
+          <p><strong>Age:</strong> {playerInfo.age || 'N/A'}</p>
+          <p><strong>User Name:</strong> {playerInfo.username || 'N/A'}</p>
+          <p><strong>Email:</strong> {playerInfo.email || 'N/A'}</p>
         </CardBody>
       </Card>
 
       
       <Card style={{ flex: 2 }}>
-        <CardHeader style={{ fontSize: '24px' }}>
-          <h3>League Participation</h3>
+        <CardHeader>
+          <h3 style={{ fontSize: '24px' }}>League Participation</h3>
         </CardHeader>
         <CardBody>
-          {leagues.length > 0 ? (
+          {teamInfo.league_name ? (
             <Table
               aria-label="Leagues"
               css={{ height: 'auto', minWidth: '100%' }}
@@ -112,17 +119,15 @@ const PlayerProfile = () => {
                 <TableColumn>Coach Name</TableColumn>
               </TableHeader>
               <TableBody>
-                {leagues.map((league) => (
-                  <TableRow key={league.league_id}>
-                    <TableCell>{league.league_name}</TableCell>
-                    <TableCell>{league.team_name}</TableCell>
-                    <TableCell>{league.coach_name}</TableCell>
-                  </TableRow>
-                ))}
+                <TableRow>
+                  <TableCell>{teamInfo.league_name || 'N/A'}</TableCell>
+                  <TableCell>{teamInfo.team_name || 'N/A'}</TableCell>
+                  <TableCell>{teamInfo.coach_name || 'N/A'}</TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           ) : (
-            <p>No leagues found.</p>
+            <p>No leagues found for the player.</p>
           )}
         </CardBody>
       </Card>

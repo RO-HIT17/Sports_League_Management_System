@@ -42,6 +42,7 @@ const Navbar = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user_id');
     localStorage.removeItem('team_id');
+    localStorage.removeItem('league_id');
     window.location.href = '/login';
   };
 

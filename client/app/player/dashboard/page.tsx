@@ -12,11 +12,24 @@ import {
   TableCell,
 } from '@nextui-org/react';
 
+
+interface Match {
+  match_date: string;
+  league_name: string;
+  opponent: string;
+  location: string;
+  home_team_id: number;
+  away_team_id: number;
+  home_team_score: number;
+  away_team_score: number;
+}
+
 const Dashboard = () => {
   const teamId = 1; 
   const [upcomingMatches, setUpcomingMatches] = useState([]);
-  const [recentMatches, setRecentMatches] = useState([]);
+  const [recentMatches, setRecentMatches] = useState<Match[]>([]);
   const [team, setTeam] = useState({});
+
   useEffect(() => {
 
       const fetchPlayerData = async () => {
@@ -47,92 +60,99 @@ const Dashboard = () => {
       fetchPlayerData();
   
     
-    // Mock data for matches
-    const allMatches = [
-      {
-        match_id: 1,
-        league_name: 'Premier League',
-        match_date: '2023-10-20',
-        location: 'Stadium A',
-        home_team_id: 1,
-        away_team_id: 2,
-        home_team_name: 'Eagles FC',
-        away_team_name: 'Tigers FC',
-        home_team_score: null,
-        away_team_score: null,
-      },
-      {
-        match_id: 2,
-        league_name: 'Premier League',
-        match_date: '2023-10-10',
-        location: 'Stadium B',
-        home_team_id: 3,
-        away_team_id: 1,
-        home_team_name: 'Lions FC',
-        away_team_name: 'Eagles FC',
-        home_team_score: 2,
-        away_team_score: 3,
-      },
-      {
-        match_id: 3,
-        league_name: 'Premier League',
-        match_date: '2023-11-01',
-        location: 'Stadium C',
-        home_team_id: 1,
-        away_team_id: 4,
-        home_team_name: 'Eagles FC',
-        away_team_name: 'Bears FC',
-        home_team_score: null,
-        away_team_score: null,
-      },
-      {
-        match_id: 4,
-        league_name: 'Premier League',
-        match_date: '2023-11-05',
-        location: 'Stadium D',
-        home_team_id: 2,
-        away_team_id: 1,
-        home_team_name: 'Tigers FC',
-        away_team_name: 'Eagles FC',
-        home_team_score: null,
-        away_team_score: null,
-      },
-      
-    ];
+    
+     const fetchUpcomingMatches = async () => {
+      const user_id = localStorage.getItem('user_id');
+      const authToken = localStorage.getItem('authToken');
+      try {
+        const response = await fetch('http://localhost:5000/slms/player/getMatchesByUserId', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ user_id }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setUpcomingMatches(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    fetchUpcomingMatches();
 
-    const upcoming = allMatches.filter(
-      (match) =>
-        (match.home_team_id === teamId || match.away_team_id === teamId) &&
-        match.home_team_score === null &&
-        match.away_team_score === null
-    );
-    console.log('Upcoming Matches:', upcoming); 
-    setUpcomingMatches(upcoming);
 
-    const recent = allMatches.filter(
-      (match) =>
-        (match.home_team_id === teamId || match.away_team_id === teamId) &&
-        new Date(match.match_date) < new Date() &&
-        match.home_team_score !== null &&
-        match.away_team_score !== null
-    );
-    console.log('Recent Matches:', recent); 
-    setRecentMatches(recent);
-  }, [teamId]);
+    const fetchRecentMatches = async () => {
+      const user_id = localStorage.getItem('user_id');
+      const authToken = localStorage.getItem('authToken');
+      try {
+        const response = await fetch('http://localhost:5000/slms/player/getMatchesByUserId', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ user_id }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setRecentMatches(data.data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    fetchRecentMatches();
+  
+  const hardcodedRecentMatches = [
+    {
+      match_date: "16/11/2024",
+      league_name: "La Liga",
+      opponent: "Fighters FC",
+      location: "Stadium A",
+      home_team_id: 1,
+      away_team_id: 2,
+      home_team_score: 2,
+      away_team_score: 1,
+    },
+    {
+      match_date: "18/11/2024",
+      league_name: "La Liga",
+      opponent: "MI",
+      location: "Stadium A",
+      home_team_id: 1,
+      away_team_id: 3,
+      home_team_score: 1,
+      away_team_score: 1,
+    },
+    {
+      match_date: "22/11/2024",
+      league_name: "La Liga",
+      opponent: "Fighters FC",
+      location: "Delhi",
+      home_team_id: 2,
+      away_team_id: 1,
+      home_team_score: 0,
+      away_team_score: 3,
+    },
+  ];
+
+  setRecentMatches(hardcodedRecentMatches);
+}, [teamId]);
 
   return (
     <div style={{ padding: '16px' }}>
-      
       <Card style={{ marginBottom: '16px' }}>
         <CardHeader>
-          <h3 style={{ fontSize: '24px'}}>Upcoming Matches</h3>
+          <h3 style={{ fontSize: '24px' }}>Upcoming Matches</h3>
         </CardHeader>
         <CardBody>
           {upcomingMatches.length > 0 ? (
-            <Table
-              aria-label="Upcoming Matches"
-              css={{ height: 'auto', minWidth: '100%' }}
-            >
+            <Table aria-label="Upcoming Matches" css={{ height: 'auto', minWidth: '100%' }}>
               <TableHeader>
                 <TableColumn>Date</TableColumn>
                 <TableColumn>League</TableColumn>
@@ -140,17 +160,13 @@ const Dashboard = () => {
                 <TableColumn>Location</TableColumn>
               </TableHeader>
               <TableBody>
-                {upcomingMatches.map((match) => {
-                  const opponent =
-                    match.home_team_id === teamId
-                      ? match.away_team_name
-                      : match.home_team_name;
-
+                {upcomingMatches.map((match, index) => {
+                  
                   return (
-                    <TableRow key={match.match_id}>
+                    <TableRow key={index}>
                       <TableCell>{match.match_date}</TableCell>
                       <TableCell>{match.league_name}</TableCell>
-                      <TableCell>{opponent}</TableCell>
+                      <TableCell>{match.opponent}</TableCell>
                       <TableCell>{match.location}</TableCell>
                     </TableRow>
                   );
@@ -163,17 +179,13 @@ const Dashboard = () => {
         </CardBody>
       </Card>
 
-      
       <Card>
         <CardHeader>
-          <h3 style={{ fontSize: '24px'}}>Recent Matches</h3>
+          <h3 style={{ fontSize: '24px' }}>Recent Matches</h3>
         </CardHeader>
         <CardBody>
-          {recentMatches.length > 0 ? (
-            <Table
-              aria-label="Recent Matches"
-              css={{ height: 'auto', minWidth: '100%' }}
-            >
+          {upcomingMatches.length > 0 ? (
+            <Table aria-label="Recent Matches" css={{ height: 'auto', minWidth: '100%' }}>
               <TableHeader>
                 <TableColumn>Date</TableColumn>
                 <TableColumn>League</TableColumn>
@@ -183,17 +195,11 @@ const Dashboard = () => {
                 <TableColumn>Location</TableColumn>
               </TableHeader>
               <TableBody>
-                {recentMatches.map((match) => {
+                {upcomingMatches.map((match, index) => {
                   const isHome = match.home_team_id === teamId;
-                  const opponent = isHome
-                    ? match.away_team_name
-                    : match.home_team_name;
-                  const teamScore = isHome
-                    ? match.home_team_score
-                    : match.away_team_score;
-                  const opponentScore = isHome
-                    ? match.away_team_score
-                    : match.home_team_score;
+                  const opponent = isHome ? match.away_team_name : match.home_team_name;
+                  const teamScore = isHome ? match.home_team_score : match.away_team_score;
+                  const opponentScore = isHome ? match.away_team_score : match.home_team_score;
                   const result =
                     teamScore > opponentScore
                       ? 'Win'
@@ -203,7 +209,7 @@ const Dashboard = () => {
                   const scoreLine = `${teamScore} - ${opponentScore}`;
 
                   return (
-                    <TableRow key={match.match_id}>
+                    <TableRow key={index}>
                       <TableCell>{match.match_date}</TableCell>
                       <TableCell>{match.league_name}</TableCell>
                       <TableCell>{opponent}</TableCell>

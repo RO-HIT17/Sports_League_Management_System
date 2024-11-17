@@ -83,7 +83,7 @@ export const getPlayerByUserId = async (req: Request, res: Response) : Promise<v
     } catch (error) {
       console.error('Error fetching players by team ID:', error);
       res.status(500).json({ error: 'Internal server error.' });
-    }
+    } 
   };
 
 export const getTeam = async (req: Request, res: Response): Promise<void> => {
@@ -116,3 +116,67 @@ export const getTeam = async (req: Request, res: Response): Promise<void> => {
       res.status(500).json({ error: 'Internal server error.' });
     }
   }
+
+export const getMatchesByUserId = async (req: Request, res: Response): Promise<void> => {
+    const { user_id } = req.body;
+  
+    try {
+      const result = await query(
+        `SELECT 
+          match_date,
+          league_name,
+          opponent,
+          location
+        FROM 
+          player_matches
+        WHERE 
+          user_id = $1
+        ORDER BY 
+          match_date;`,
+        [user_id]
+      );
+      
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: 'No matches found for the given user ID.' });
+        return;
+      }
+      
+      res.status(200).json(result.rows);
+  }
+  catch (error) {
+    console.error('Error fetching matches by user ID:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+export const getPlayerTeamInfo = async (req: Request, res: Response): Promise<void> => {
+  const { user_id } = req.body;
+
+  try {
+    const result = await query(
+      `SELECT 
+        t.team_name,
+        t.coach_name,
+        l.league_name
+      FROM 
+        players p
+      JOIN 
+        Teams t ON p.team_id = t.team_id
+      JOIN 
+        Leagues l ON t.league_id = l.league_id
+      WHERE 
+        p.user_id = $1;`,
+      [user_id]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'No team information found for the given user ID.' });
+      return;
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching team information by user ID:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};

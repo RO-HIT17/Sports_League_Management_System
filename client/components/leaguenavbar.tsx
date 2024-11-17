@@ -36,6 +36,8 @@ const LeagueNavbar = () => {
     localStorage.removeItem('name');
     localStorage.removeItem('authToken');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('league_id');
+    
     window.location.href = '/login';
   };
 
