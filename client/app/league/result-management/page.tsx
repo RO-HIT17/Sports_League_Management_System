@@ -18,17 +18,12 @@ import {
 
 type Match = {
   match_id: number;
-  home_team_id: number;
-  away_team_id: number;
-  match_date: string;
-  location: string;
-  home_team_name: string;
-  away_team_name: string;
+  match: string; 
 };
 
 type Result = {
   result_id: number;
-  match_id: number; 
+  match_id: number;
   home_team_score: number;
   away_team_score: number;
   created_at: string;
@@ -38,7 +33,7 @@ const ResultManagement = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [newResult, setNewResult] = useState<Partial<Result>>({
-    match_id: undefined, 
+    match_id: 0,
     home_team_score: 0,
     away_team_score: 0,
   });
@@ -47,6 +42,7 @@ const ResultManagement = () => {
     const authToken = localStorage.getItem('authToken');
     const league_id = localStorage.getItem('league_id');
 
+    
     const fetchMatches = async () => {
       try {
         const response = await fetch('http://localhost:5000/slms/league/matchesList', {
@@ -65,19 +61,13 @@ const ResultManagement = () => {
 
         const data = await response.json();
         setMatches(data);
+        console.log(data);
       } catch (error) {
         console.error('Error fetching matches:', error);
       }
     };
 
     fetchMatches();
-
-    
-    const staticResultsData: Result[] = [
-      { result_id: 1, match_id: 1, home_team_score: 3, away_team_score: 1, created_at: '2023-10-01T18:00:00Z' },
-      { result_id: 2, match_id: 2, home_team_score: 2, away_team_score: 2, created_at: '2023-10-02T20:00:00Z' },
-    ];
-    setResults(staticResultsData);
   }, []);
 
   const handleUpdateResult = async () => {
@@ -88,7 +78,10 @@ const ResultManagement = () => {
         return;
       }
 
+      console.log(newResult);
+
       if (!newResult.match_id || newResult.home_team_score === undefined || newResult.away_team_score === undefined) {
+        
         console.error('Incomplete result data. Please ensure all fields are filled.');
         return;
       }
@@ -109,14 +102,12 @@ const ResultManagement = () => {
 
       const data = await response.json();
 
-      
       setResults((prevResults) => [
         ...prevResults,
-        { ...data, created_at: new Date().toISOString() }, 
+        { ...data, created_at: new Date().toISOString() },
       ]);
 
-      
-      setNewResult({ match_id: undefined, home_team_score: 0, away_team_score: 0 });
+      setNewResult({ match_id: 0, home_team_score: 0, away_team_score: 0 });
     } catch (error) {
       console.error('Error updating result:', error);
     }
@@ -130,17 +121,22 @@ const ResultManagement = () => {
         </CardHeader>
         <CardBody>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Select
-              placeholder="Select Match"
-              value={newResult.match_id ? String(newResult.match_id) : ''}
-              onChange={(value) => setNewResult({ ...newResult, match_id: Number(value) })}
-            >
-              {matches.map((match) => (
-                <SelectItem key={match.match_id} value={String(match.match_id)}>
-                  {match.match}
-                </SelectItem>
-              ))}
-            </Select>
+          <Select
+        placeholder="Select Match"
+        value={newResult.match_id ?? 0}
+        onChange={(value) =>
+          setNewResult((prev) => ({
+            ...prev,
+            match_id: Number(value.target.value),
+          }))
+        }
+      >
+        {matches.map((match) => (
+          <SelectItem key={match.match_id} value={match.match_id}>
+            {match.match}
+          </SelectItem>
+        ))}
+      </Select>
             <Input
               type="number"
               placeholder="Home Team Score"
@@ -179,9 +175,7 @@ const ResultManagement = () => {
                   const match = matches.find((m) => m.match_id === result.match_id);
                   return (
                     <TableRow key={result.result_id}>
-                      <TableCell>
-                        {match ? `${match.home_team_name} vs ${match.away_team_name}` : 'Unknown Match'}
-                      </TableCell>
+                      <TableCell>{match ? match.match : 'Unknown Match'}</TableCell>
                       <TableCell>{result.home_team_score}</TableCell>
                       <TableCell>{result.away_team_score}</TableCell>
                       <TableCell>{new Date(result.created_at).toLocaleString()}</TableCell>

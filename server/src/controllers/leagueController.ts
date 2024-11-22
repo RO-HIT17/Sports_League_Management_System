@@ -156,8 +156,8 @@ WHERE
 export const updateResult = async (req: Request, res: Response): Promise<void> => {
   const { match_id, home_team_score, away_team_score } = req.body;
   try {
-    await query('INSERT INTO Results (home_team_score,away_team_score,match_id) VALUES ($1,$2,$3) RETURNING *', [home_team_score, away_team_score, match_id]);
-    res.status(204).end();
+    const result = await query('INSERT INTO Results (home_team_score,away_team_score,match_id) VALUES ($1,$2,$3) RETURNING *', [home_team_score, away_team_score, match_id]);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error updating result:', error);
     res.status(500).json({ error: 'Internal server error' });
