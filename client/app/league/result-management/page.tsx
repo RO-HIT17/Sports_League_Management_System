@@ -27,6 +27,7 @@ type Result = {
   home_team_score: number;
   away_team_score: number;
   created_at: string;
+  league_id: number;
 };
 
 const ResultManagement = () => {
@@ -36,14 +37,35 @@ const ResultManagement = () => {
     match_id: 0,
     home_team_score: 0,
     away_team_score: 0,
+    league_id: 0,
   });
 
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     const league_id = localStorage.getItem('league_id');
 
-    
+    const fetchResults = async () => {
+      const response = await fetch('http://localhost:5000/slms/league/getResultsByLeagueId', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ league_id }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        setResults(data);
+    }
+    fetchResults();
+    }, []);
+
+  useEffect(() => {
     const fetchMatches = async () => {
+    const authToken = localStorage.getItem('authToken');
+    const league_id = localStorage.getItem('league_id');
+
       try {
         const response = await fetch('http://localhost:5000/slms/league/matchesList', {
           method: 'POST',
@@ -73,6 +95,7 @@ const ResultManagement = () => {
   const handleUpdateResult = async () => {
     try {
       const authToken = localStorage.getItem('authToken');
+      const league_id = localStorage.getItem('league_id');
       if (!authToken) {
         console.error('Authorization token is missing');
         return;
@@ -85,7 +108,8 @@ const ResultManagement = () => {
         console.error('Incomplete result data. Please ensure all fields are filled.');
         return;
       }
-
+      newResult.league_id = league_id ? Number(league_id) : undefined;
+      
       const response = await fetch('http://localhost:5000/slms/league/updateResult', {
         method: 'POST',
         headers: {
@@ -166,8 +190,8 @@ const ResultManagement = () => {
             >
               <TableHeader>
                 <TableColumn>Match</TableColumn>
-                <TableColumn>Home Team Score</TableColumn>
-                <TableColumn>Away Team Score</TableColumn>
+                <TableColumn>ScoreLine</TableColumn>
+                <TableColumn>Result</TableColumn>
                 <TableColumn>Created At</TableColumn>
               </TableHeader>
               <TableBody>
@@ -175,10 +199,11 @@ const ResultManagement = () => {
                   const match = matches.find((m) => m.match_id === result.match_id);
                   return (
                     <TableRow key={result.result_id}>
-                      <TableCell>{match ? match.match : 'Unknown Match'}</TableCell>
-                      <TableCell>{result.home_team_score}</TableCell>
-                      <TableCell>{result.away_team_score}</TableCell>
-                      <TableCell>{new Date(result.created_at).toLocaleString()}</TableCell>
+                      <TableCell>{result.home_team} vs {result.away_team}</TableCell>
+                      
+                      <TableCell>{result.scoreline}</TableCell>
+                      <TableCell>{result.result}</TableCell>
+                      <TableCell>{new Date(result.result_created_at).toLocaleString()}</TableCell>
                     </TableRow>
                   );
                 })}

@@ -34,29 +34,10 @@ const LeagueDashboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
 
-  useEffect(() => {
-    // Hardcoded data for leaderboard
-    const staticTeamsData: Team[] = [
-      { team_id: 1, team_name: 'Eagles FC', matches_played: 12, wins: 10, losses: 2, draws: 0, points: 32 },
-      { team_id: 2, team_name: 'Tigers FC', matches_played: 12, wins: 8, losses: 4, draws: 0, points: 28 },
-      { team_id: 3, team_name: 'Lions FC', matches_played: 12, wins: 7, losses: 5, draws: 0, points: 26 },
-      { team_id: 4, team_name: 'Bears FC', matches_played: 12, wins: 6, losses: 6, draws: 0, points: 24 },
-    ];
-    setTeams(staticTeamsData);
-
-    // Hardcoded data for upcoming matches
-    const staticMatchesData: Match[] = [
-      { match_id: 1, home_team: 'Eagles FC', away_team: 'Tigers FC', match_date: '2023-11-01T15:00:00Z', location: 'Stadium A' },
-      { match_id: 2, home_team: 'Lions FC', away_team: 'Bears FC', match_date: '2023-11-02T17:00:00Z', location: 'Stadium B' },
-      { match_id: 3, home_team: 'Eagles FC', away_team: 'Lions FC', match_date: '2023-11-03T19:00:00Z', location: 'Stadium C' },
-      { match_id: 4, home_team: 'Tigers FC', away_team: 'Bears FC', match_date: '2023-11-04T21:00:00Z', location: 'Stadium D' },
-    ];
-    setUpcomingMatches(staticMatchesData);
-  }, []);
-
   const fetchLeagueId = async () => {
     const user_id = localStorage.getItem('user_id');
     const authToken = localStorage.getItem('authToken');
+
     if (!user_id) {
       console.error('No user_id found in local storage');
       return;
@@ -80,17 +61,83 @@ const LeagueDashboard = () => {
         console.error('Failed to fetch league ID');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching league ID:', error);
     }
   };
+
+
+  const fetchTeamsData = async () => {
+    const league_id = localStorage.getItem('league_id');
+    const authToken = localStorage.getItem('authToken');
+
+    if (!league_id) {
+      console.error('No league_id found in local storage');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/slms/league/getStandings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ league_id }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched teams data:', data);
+        setTeams(data); 
+      } else {
+        console.error('Failed to fetch teams data');
+      }
+    } catch (error) {
+      console.error('Error fetching teams:', error);
+    }
+  };
+  const fetchUpcomingMatches = async () => {
+    const league_id = localStorage.getItem('league_id');
+    const authToken = localStorage.getItem('authToken');
+    if (!league_id) {
+      console.error('No league_id found in local storage');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/slms/league/getUpcomingMatches`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ league_id }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched upcoming matches:', data);
+        setUpcomingMatches(data);
+      } else {
+        console.error('Failed to fetch upcoming matches');
+      } 
+    } catch (error) {
+      console.error('Error fetching upcoming matches:', error);
+    }
+  }
 
   useEffect(() => {
     fetchLeagueId();
   }, []);
+  
+  useEffect(() => {
+    fetchUpcomingMatches();
+  }, []);
+
+  useEffect(() => {
+    fetchTeamsData();
+  }, []);
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Leaderboard */}
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Leaderboard</h3>
@@ -132,7 +179,6 @@ const LeagueDashboard = () => {
         </CardBody>
       </Card>
 
-      {/* Upcoming Matches */}
       <Card>
         <CardHeader style={{ fontSize: '24px', color: '#1976D2' }}>
           <h3>Upcoming Matches</h3>
