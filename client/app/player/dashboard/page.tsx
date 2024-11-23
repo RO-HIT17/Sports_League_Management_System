@@ -88,19 +88,21 @@ const Dashboard = () => {
 
     const fetchRecentMatches = async () => {
       const user_id = localStorage.getItem('user_id');
+      const team_id = localStorage.getItem('team_id');
       const authToken = localStorage.getItem('authToken');
       try {
-        const response = await fetch('http://localhost:5000/slms/player/getMatchesByUserId', {
+        const response = await fetch('http://localhost:5000/slms/player/getRecentMatches', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ user_id }),
+          body: JSON.stringify({ team_id }),
         });
         if (response.ok) {
           const data = await response.json();
-          setRecentMatches(data.data);
+          console.log(data);
+          setRecentMatches(data);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -108,41 +110,7 @@ const Dashboard = () => {
     }
     fetchRecentMatches();
   
-  const hardcodedRecentMatches = [
-    {
-      match_date: "16/11/2024",
-      league_name: "La Liga",
-      opponent: "Fighters FC",
-      location: "Stadium A",
-      home_team_id: 1,
-      away_team_id: 2,
-      home_team_score: 2,
-      away_team_score: 1,
-    },
-    {
-      match_date: "18/11/2024",
-      league_name: "La Liga",
-      opponent: "MI",
-      location: "Stadium A",
-      home_team_id: 1,
-      away_team_id: 3,
-      home_team_score: 1,
-      away_team_score: 1,
-    },
-    {
-      match_date: "22/11/2024",
-      league_name: "La Liga",
-      opponent: "Fighters FC",
-      location: "Delhi",
-      home_team_id: 2,
-      away_team_id: 1,
-      home_team_score: 0,
-      away_team_score: 3,
-    },
-  ];
-
-  setRecentMatches(hardcodedRecentMatches);
-}, [teamId]);
+  }, []);
 
   return (
     <div style={{ padding: '16px' }}>
@@ -184,47 +152,45 @@ const Dashboard = () => {
           <h3 style={{ fontSize: '24px' }}>Recent Matches</h3>
         </CardHeader>
         <CardBody>
-          {upcomingMatches.length > 0 ? (
-            <Table aria-label="Recent Matches" css={{ height: 'auto', minWidth: '100%' }}>
-              <TableHeader>
-                <TableColumn>Date</TableColumn>
-                <TableColumn>League</TableColumn>
-                <TableColumn>Opponent</TableColumn>
-                <TableColumn>Result</TableColumn>
-                <TableColumn>Score</TableColumn>
-                <TableColumn>Location</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {upcomingMatches.map((match, index) => {
-                  const isHome = match.home_team_id === teamId;
-                  const opponent = isHome ? match.away_team_name : match.home_team_name;
-                  const teamScore = isHome ? match.home_team_score : match.away_team_score;
-                  const opponentScore = isHome ? match.away_team_score : match.home_team_score;
-                  const result =
-                    teamScore > opponentScore
-                      ? 'Win'
-                      : teamScore < opponentScore
-                      ? 'Loss'
-                      : 'Draw';
-                  const scoreLine = `${teamScore} - ${opponentScore}`;
+  {upcomingMatches.length > 0 ? (
+    <Table aria-label="Upcoming Matches" css={{ height: 'auto', minWidth: '100%' }}>
+      <TableHeader>
+        <TableColumn>Date</TableColumn>
+        <TableColumn>League</TableColumn>
+        <TableColumn>Opponent</TableColumn>
+        <TableColumn>Match Type</TableColumn>
+        <TableColumn>Result</TableColumn>
+        <TableColumn>Score</TableColumn>
+        <TableColumn>Location</TableColumn>
+      </TableHeader>
+      <TableBody>
+        {recentMatches.map((match, index) => {
+          const isHome = match.match_type === 'Home'; // Check if it's a home match
 
-                  return (
-                    <TableRow key={index}>
-                      <TableCell>{match.match_date}</TableCell>
-                      <TableCell>{match.league_name}</TableCell>
-                      <TableCell>{opponent}</TableCell>
-                      <TableCell>{result}</TableCell>
-                      <TableCell>{scoreLine}</TableCell>
-                      <TableCell>{match.location}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          ) : (
-            <p>No recent matches.</p>
-          )}
-        </CardBody>
+          const opponent = isHome ? match.away_team : match.home_team; // Get opponent based on match type
+          const scoreLine = match.scoreline; // Format scoreline
+          const result = match.result; // Result (Win, Loss, Draw)
+
+          return (
+            <TableRow key={index}>
+              <TableCell>{new Date(match.match_date).toLocaleDateString()}</TableCell>
+              <TableCell>{match.league_name}</TableCell>
+              <TableCell>{opponent}</TableCell>
+              <TableCell>{match.match_type}</TableCell>
+              <TableCell>{result}</TableCell>
+              <TableCell>{scoreLine}</TableCell>
+              <TableCell>{match.location}</TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  ) : (
+    <p>No recent matches.</p>
+  )}
+</CardBody>
+
+
       </Card>
     </div>
   );

@@ -180,3 +180,55 @@ export const getPlayerTeamInfo = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ error: 'Internal server error.' });
   }
 };
+
+export const getRecentMatches = async (req: Request, res: Response): Promise<void> => {
+  const { team_id } = req.body;
+
+  if (!team_id) {
+    res.status(400).json({ error: 'Team ID is required' });
+    return;
+  }
+
+  try {
+    const result = await query(`
+      SELECT
+  m.match_date,
+  l.league_name,
+  t1.team_name AS home_team,
+  t2.team_name AS away_team,
+  CASE
+    WHEN m.home_team_id = $1 THEN 'Home'
+    ELSE 'Away'
+  END AS match_type,
+  r.home_team_score || ' - ' || r.away_team_score AS scoreline,
+  CASE 
+    WHEN r.home_team_score > r.away_team_score AND m.home_team_id = $1 THEN 'Win'
+    WHEN r.home_team_score < r.away_team_score AND m.home_team_id = $1 THEN 'Loss'
+    WHEN r.home_team_score = r.away_team_score THEN 'Draw'
+    WHEN r.home_team_score > r.away_team_score AND m.away_team_id = $1 THEN 'Loss'
+    WHEN r.home_team_score < r.away_team_score AND m.away_team_id = $1 THEN 'Win'
+  END AS result,
+  m.location
+FROM 
+  results r
+JOIN 
+  matches m ON r.match_id = m.match_id
+JOIN 
+  teams t1 ON m.home_team_id = t1.team_id
+JOIN 
+  teams t2 ON m.away_team_id = t2.team_id
+JOIN
+  leagues l ON m.league_id = l.league_id
+WHERE 
+  (m.home_team_id = $1 OR m.away_team_id = $1)
+ORDER BY 
+  m.match_date DESC;
+`,[team_id]);
+
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching recent matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
