@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTeamIdByUserId, registerInLeague,getPastMatches,getUpcomingMatches, addPlayer, getPLayers, removePlayer, updatePlayer, getLeagues } from '../controllers/teamController';
+import { getTeamIdByUserId, matchesList,getResultsByLeagueId,getLeagueIdByTeamId,getStandings,registerInLeague,getPastMatches,getUpcomingMatches, addPlayer, getPLayers, removePlayer, updatePlayer, getLeagues } from '../controllers/teamController';
 import { authenticateJWT } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -13,5 +13,9 @@ router.get('/getLeagues',authenticateJWT, getLeagues);
 router.put('/registerInLeague',authenticateJWT, registerInLeague);
 router.post('/getPastMatches',authenticateJWT, getPastMatches);
 router.post('/getUpcomingMatches',authenticateJWT, getUpcomingMatches);
+router.post('/getStandings',authenticateJWT, getStandings);
+router.post('/getLeagueIdByTeamId',authenticateJWT, getLeagueIdByTeamId);
+router.post('/getResultsByLeagueId',authenticateJWT, getResultsByLeagueId);
+router.post('/matchesList',authenticateJWT, matchesList);
 
 export default router;

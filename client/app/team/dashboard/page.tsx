@@ -18,6 +18,8 @@ type Team = {
   wins: number;
   losses: number;
   points: number;
+  matches_played: number;
+  draws: number;
 };
 
 type Player = {
@@ -59,21 +61,74 @@ const Leaderboard = () => {
         const teamData = await teamResponse.json();
         setTeamId(teamData.team_id);
         localStorage.setItem('team_id', teamData.team_id);
-
+        console.log('Fetched team data:', teamData);
         
-        const staticTeamsData = [
-          { team_id: 1, team_name: 'Eagles FC', wins: 10, losses: 2, points: 32 },
-          { team_id: 2, team_name: 'Tigers FC', wins: 8, losses: 4, points: 28 },
-          { team_id: 3, team_name: 'Lions FC', wins: 7, losses: 5, points: 26 },
-          { team_id: 4, team_name: 'Bears FC', wins: 6, losses: 6, points: 24 },
-        ];
-        setTeams(staticTeamsData);
-
+        
         
         await fetchPlayers(teamData.team_id);
 
       } catch (error) {
         console.error('Error fetching team data:', error);
+      }
+    };
+
+    const fetchLeagueId = async () => {
+      const team_id = localStorage.getItem('team_id');
+      const authToken = localStorage.getItem('authToken');
+      if (!team_id) {
+        console.error('Team ID not found in local storage');
+        return;
+      }
+      try {
+        const leagueResponse = await fetch('http://localhost:5000/slms/team/getLeagueIdByTeamId', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ team_id }),
+        });
+        if (!leagueResponse.ok) {
+          throw new Error('Failed to fetch league ID');
+        } 
+        const leagueData = await leagueResponse.json();
+        
+        localStorage.setItem('league_id', leagueData.league_id);
+      } catch (error) {
+        console.error('Error fetching league ID:', error);
+
+      }
+
+    }
+
+    const fetchTeamsData = async () => {
+      const league_id = localStorage.getItem('league_id');
+      const authToken = localStorage.getItem('authToken');
+  
+      if (!league_id) {
+        console.error('No league_id found in local storage');
+        return;
+      }
+  
+      try {
+        const response = await fetch(`http://localhost:5000/slms/team/getStandings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ league_id }),
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched teams data:', data);
+          setTeams(data); 
+        } else {
+          console.error('Failed to fetch teams data');
+        }
+      } catch (error) {
+        console.error('Error fetching teams:', error);
       }
     };
 
@@ -105,7 +160,10 @@ const Leaderboard = () => {
       }
     };
 
+    fetchLeagueId();
     fetchTeamData();
+    fetchTeamsData();
+    
   }, []);
 
   return (
@@ -124,8 +182,10 @@ const Leaderboard = () => {
               <TableHeader>
                 <TableColumn>Position</TableColumn>
                 <TableColumn>Team Name</TableColumn>
+                <TableColumn>Matches Played</TableColumn>
                 <TableColumn>Wins</TableColumn>
                 <TableColumn>Losses</TableColumn>
+                <TableColumn>Draws</TableColumn>
                 <TableColumn>Points</TableColumn>
               </TableHeader>
               <TableBody>
@@ -143,8 +203,10 @@ const Leaderboard = () => {
                     >
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{team.team_name}</TableCell>
+                      <TableCell>{team.matches_played}</TableCell>
                       <TableCell>{team.wins}</TableCell>
                       <TableCell>{team.losses}</TableCell>
+                      <TableCell>{team.draws}</TableCell>
                       <TableCell>{team.points}</TableCell>
                     </TableRow>
                   ))}

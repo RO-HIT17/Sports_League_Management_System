@@ -12,10 +12,47 @@ import {
   TableCell,
 } from '@nextui-org/react';
 
+
+type Result = {
+  result_id: number;
+  match_id: number;
+  home_team_score: number;
+  away_team_score: number;
+  created_at: string;
+  league_id: number;
+};
+
+
 const MatchOverview = () => {
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [recentMatches, setRecentMatches] = useState([]);
+  const [results, setResults] = useState<Result[]>([]);
+
   const team_id = localStorage.getItem('team_id');
+
+  
+
+  useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    const league_id = localStorage.getItem('league_id');
+
+    const fetchResults = async () => {
+      const response = await fetch('http://localhost:5000/slms/team/getResultsByLeagueId', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ league_id }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+        setResults(data);
+    }
+    fetchResults();
+    }, []);
+
   useEffect(() => {
     
     const fetchMatches = async () => {
@@ -37,34 +74,10 @@ const MatchOverview = () => {
       }
     }
     
-    const resultsData = [
-      {
-        match_id: 3,
-        match_date: '2023-10-20T19:00:00',
-        home_team_id: 1,
-        home_team_name: 'Eagles FC',
-        away_team_id: 2,
-        away_team_name: 'Tigers FC',
-        location: 'Stadium A',
-        home_team_score: 3,
-        away_team_score: 1,
-      },
-      {
-        match_id: 4,
-        match_date: '2023-10-15T17:30:00',
-        home_team_id: 3,
-        home_team_name: 'Lions FC',
-        away_team_id: 1,
-        away_team_name: 'Eagles FC',
-        location: 'Stadium C',
-        home_team_score: 2,
-        away_team_score: 2,
-      },
-      
-    ];
+    
 
     fetchMatches();
-    setRecentMatches(resultsData);
+    
   }, []);
 
   return (
@@ -118,62 +131,37 @@ const MatchOverview = () => {
           <h3>Recent Matches</h3>
         </CardHeader>
         <CardBody>
-          {recentMatches.length > 0 ? (
+          {results.length > 0 ? (
             <Table
-              aria-label="Recent Matches"
+              aria-label="Match History"
               css={{ height: 'auto', minWidth: '100%' }}
             >
               <TableHeader>
-                <TableColumn>Date</TableColumn>
-                <TableColumn>Time</TableColumn>
-                <TableColumn>Opponent</TableColumn>
-                <TableColumn>Score</TableColumn>
+                <TableColumn>Match</TableColumn>
+                <TableColumn>ScoreLine</TableColumn>
                 <TableColumn>Result</TableColumn>
+                <TableColumn>Created At</TableColumn>
               </TableHeader>
               <TableBody>
-                {recentMatches.map((match) => {
-                  const isHome = match.home_team_id === team_id;
-                  const opponent = isHome
-                    ? match.away_team_name
-                    : match.home_team_name;
-                  const teamScore = isHome
-                    ? match.home_team_score
-                    : match.away_team_score;
-                  const opponentScore = isHome
-                    ? match.away_team_score
-                    : match.home_team_score;
-                  const result =
-                    teamScore > opponentScore
-                      ? 'Win'
-                      : teamScore < opponentScore
-                      ? 'Loss'
-                      : 'Draw';
-
+                {results.map((result) => {
+                  const match = results.find((m) => m.match_id === result.match_id);
                   return (
-                    <TableRow key={match.match_id}>
-                      <TableCell>
-                        {new Date(match.match_date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(match.match_date).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </TableCell>
-                      <TableCell>{opponent}</TableCell>
-                      <TableCell>
-                        {teamScore} - {opponentScore}
-                      </TableCell>
-                      <TableCell>{result}</TableCell>
+                    <TableRow key={result.result_id}>
+                      <TableCell>{result.home_team} vs {result.away_team}</TableCell>
+                      
+                      <TableCell>{result.scoreline}</TableCell>
+                      <TableCell>{result.result}</TableCell>
+                      <TableCell>{new Date(result.result_created_at).toLocaleString()}</TableCell>
                     </TableRow>
                   );
                 })}
               </TableBody>
             </Table>
           ) : (
-            <p>No recent matches.</p>
+            <p>No match results found.</p>
           )}
         </CardBody>
+
       </Card>
     </div>
   );

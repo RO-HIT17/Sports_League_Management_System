@@ -248,4 +248,4 @@ export const getResultsByLeagueId = async (req: Request, res: Response): Promise
     console.error('Error fetching results:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};

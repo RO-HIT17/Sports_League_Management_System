@@ -193,3 +193,99 @@ export const getPastMatches = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getStandings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { league_id } = req.body;
+    const result = await query(`
+    SELECT * 
+      FROM standings_view
+      WHERE league_id = $1;`, [league_id]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching standings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getLeagueIdByTeamId = async (req: Request, res: Response): Promise<void> => {
+  const { team_id } = req.body;
+
+  try {
+    const result = await query('SELECT league_id FROM Teams WHERE team_id = $1', [team_id]);
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching league ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getResultsByLeagueId = async (req: Request, res: Response): Promise<void> => {
+  const { league_id } = req.body;
+
+  try {
+    const result = await query(
+      `SELECT 
+        t1.team_name AS home_team,
+        t2.team_name AS away_team,
+        r.home_team_score || ' - ' || r.away_team_score AS scoreline,
+        CASE 
+          WHEN r.home_team_score > r.away_team_score THEN t1.team_name || ' won'
+          WHEN r.home_team_score < r.away_team_score THEN t2.team_name || ' won'
+          ELSE 'Draw'
+        END AS result,
+        r.created_at AS result_created_at
+      FROM 
+        Results r
+      JOIN 
+        Matches m ON r.match_id = m.match_id
+      JOIN 
+        Teams t1 ON m.home_team_id = t1.team_id
+      JOIN 
+        Teams t2 ON m.away_team_id = t2.team_id
+      WHERE 
+        m.league_id = $1;`, [league_id]);
+      res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching results:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+export const matchesList = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { league_id } = req.body;
+
+    const result = await query(`
+      SELECT 
+        t1.team_name || ' vs ' || t2.team_name || ' ' ||
+        TO_CHAR(m.match_date, 'DD/MM/YYYY') || ' ' ||
+        TO_CHAR(m.match_date, 'HH24:MI') AS match,
+        m.match_id
+      FROM 
+        matches m
+      JOIN 
+        teams t1 ON m.home_team_id = t1.team_id
+      JOIN 
+        teams t2 ON m.away_team_id = t2.team_id
+      WHERE 
+        m.league_id = $1 
+        AND NOT EXISTS (
+          SELECT 1 
+          FROM results r 
+          WHERE r.match_id = m.match_id
+        );
+    `, [league_id]);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching upcoming matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
