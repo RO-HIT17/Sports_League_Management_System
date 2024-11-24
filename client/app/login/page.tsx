@@ -58,7 +58,7 @@ export const description =
             router.push('/player/dashboard');
             break;
           case 'teammanager':
-            router.push('/team/dashboard');
+            router.push('/team/registration');
             break;
           case 'leaguemanager':
             router.push('/league/dashboard');

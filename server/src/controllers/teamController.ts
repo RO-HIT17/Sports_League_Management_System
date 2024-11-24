@@ -289,3 +289,36 @@ export const matchesList = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const registerTeam = async (req: Request, res: Response): Promise<void> => {
+  const { user_id, team_name, team_type } = req.body;
+
+  try {
+    const result = await query(
+      'INSERT INTO Teams (team_name, team_type, created_by) VALUES ($1, $2, $3) RETURNING *',
+      [team_name, team_type, user_id]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error registering team:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const checkTeamUsingUserId = async (req: Request, res: Response): Promise<void> => {
+  const { user_id } = req.body;
+
+  try {
+    const result = await query('SELECT team_id FROM Teams WHERE created_by = $1', [user_id]);
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Team not found' });
+      return;
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error checking team using user ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
