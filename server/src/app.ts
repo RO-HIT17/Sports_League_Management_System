@@ -4,7 +4,6 @@ import userRoutes from './routes/userRoutes';
 import teamRoutes from './routes/teamRoutes';
 import playerRoutes from './routes/playerRoutes';
 import leagueRoutes from './routes/leagueRoutes';
-
 import cors from 'cors';
 
 dotenv.config();
