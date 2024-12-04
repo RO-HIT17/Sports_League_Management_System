@@ -43,7 +43,7 @@ const MatchScheduling = () => {
   const [newMatch, setNewMatch] = useState<Partial<Match>>({
     home_team_id: '',
     away_team_id: '',
-    match_date: '',
+    match_date: '', 
     location: '',
     league_id: '',
   });

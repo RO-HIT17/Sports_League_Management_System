@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   const [standings, setStandings] = useState<{ [key: number]: TeamStanding[] }>({});
 
   useEffect(() => {
-    // Fetch leagues
+    
     const fetchLeagues = async () => {
       try {
         const response = await fetch('http://localhost:5000/slms/league');
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
       }
     };
 
-    // Fetch standings for each league
+    
     const fetchStandings = async (league_id: number) => {
       try {
         const response = await fetch(`http://localhost:5000/slms/standings/${league_id}`);

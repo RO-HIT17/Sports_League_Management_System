@@ -166,7 +166,7 @@ export const matchesList = async (req: Request, res: Response): Promise<void> =>
 export const updateResult = async (req: Request, res: Response): Promise<void> => {
   const { league_id,match_id, home_team_score, away_team_score } = req.body;
   try {
-    const result = await query('INSERT INTO Results (home_team_score,away_team_score,match_id,league_id) VALUES ($1,$2,$3,$4) RETURNING *', [home_team_score, away_team_score, match_id, league_id]);
+    const result = await query('INSERT INTO Results (home_team_score,away_team_score,match_id) VALUES ($1,$2,$3) RETURNING *', [home_team_score, away_team_score, match_id]);
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error updating result:', error);
@@ -178,7 +178,7 @@ export const getStandings = async (req: Request, res: Response): Promise<void> =
   try {
     const { league_id } = req.body;
     const result = await query(`
-    SELECT * 
+    SELECT *  
       FROM standings_view
       WHERE league_id = $1;`, [league_id]);
     res.status(200).json(result.rows);

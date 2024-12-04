@@ -37,7 +37,7 @@ const ResultManagement = () => {
     match_id: 0,
     home_team_score: 0,
     away_team_score: 0,
-    league_id: 0,
+    
   });
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const ResultManagement = () => {
         console.error('Incomplete result data. Please ensure all fields are filled.');
         return;
       }
-      newResult.league_id = league_id ? Number(league_id) : undefined;
+      
       
       const response = await fetch('http://localhost:5000/slms/league/updateResult', {
         method: 'POST',
