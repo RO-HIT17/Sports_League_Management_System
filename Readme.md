@@ -1,144 +1,183 @@
-## **Sports League Management System**
+# Sports League Management System
 
-For this Sports League Management System, the frontend will need pages to facilitate the four roles (Players, Team Managers, League Managers, and Admins). Here’s a breakdown of the pages, their descriptions, and how they fit into the system’s navigation structure.
+## Introduction
 
-### 1. **Authentication & User Management**
-   - **Login Page**: Allows users to log in with their credentials.
-   - **Register Page**: For Players to register and add their details to the system.
-   - **User Dashboard**: Common landing page after login, with navigation based on the user role.
+The *Sports League Management System* is a comprehensive platform designed to streamline the management of sports leagues. It caters to the needs of *Players, **Team Managers, **League Managers, and **Admins* by offering tailored dashboards, efficient workflows, and detailed analytics for managing players, teams, matches, and leagues.
 
 ---
 
-### 2. **Player Pages**
-   - **Player Dashboard**: Displays player-specific information like matches, standings, and updates.
-   - **Squad View**: Shows the player’s team/squad details.
-   - **Player Profile**: A profile page where players can view and edit their personal information.
+## Features
+
+### Core Functionalities
+1. *Authentication and Role Management*  
+   - Role-based access for Players, Team Managers, League Managers, and Admins.
+   - Secure login and registration system.
+
+2. *Player Management*  
+   - Players can manage profiles, view squad details, and track personal match statistics.
+
+3. *Team Management*  
+   - Team Managers can register teams, manage players, and monitor team performance.
+
+4. *League Management*  
+   - League Managers can schedule matches, approve team registrations, update results, and manage league standings.
+
+5. *Admin Oversight*  
+   - Full control over all entities, including leagues, teams, matches, and user roles.
+   - Data analysis tools for aggregated and detailed statistics.
+
+6. *Database Query Interface*  
+   - Execute predefined SQL queries for data retrieval, including joins, aggregations, and triggers.
 
 ---
 
-### 3. **Team Manager Pages**
-   - **Team Manager Dashboard**: Displays a summary of the team’s current status, upcoming matches, and pending actions.
-   - **Team Management**:
-     - **Add New Player**: Allows the team manager to add new players to the team.
-     - **Manage Players**: Lists players in the team with options to update or remove players.
-     - **Register Team in League**: Allows team managers to register their team for specific leagues.
-   - **Match Overview**: Shows all scheduled matches for the team’s registered leagues.
+## Technology Stack
+
+### *Frontend*
+- *Framework*: AngularJS
+- *Styling*: Tailwind CSS
+- *Routing*: Angular Router
+- *UI Components*: Custom SCSS and Tailwind
+
+### *Backend*
+- *Runtime*: Node.js
+- *Framework*: Express.js
+- *Language*: TypeScript
+- *Database*: PostgreSQL with pg-promise
+- *Authentication*: JSON Web Tokens (JWT)
+
+### *Development Tools*
+- *Containerization*: Docker
+- *Version Control*: Git with GitHub
+- *Languages*: TypeScript and SCSS
 
 ---
 
-### 4. **League Manager Pages**
-   - **League Manager Dashboard**: Displays league overview, pending approvals, and upcoming events.
-   - **Approve Teams**: Allows league managers to approve or reject team registrations.
-   - **Match Scheduling**:
-     - **Schedule Matches**: Interface to schedule new matches for approved teams.
-     - **View Schedule**: Lists all scheduled matches with filters for dates, teams, and leagues.
-   - **Results Management**:
-     - **Update Results**: Interface to input or update results after matches conclude.
-     - **Match History**: Displays past matches with results and performance stats.
-   - **League Standings**: Real-time standings page showing team rankings, points, and other metrics.
-   - **League Management**:
-     - **Manage Leagues**: View and edit league information.
-     - **View All Teams**: Lists all teams registered in the league.
+## User Roles and Pages
+
+### *1. Players*
+- *Dashboard*: View matches, standings, and team updates.
+- *Squad View*: Access team roster and squad details.
+- *Player Profile*: Manage personal information and stats.
+
+### *2. Team Managers*
+- *Dashboard*: Monitor team performance and upcoming matches.
+- *Team Management*: Add/remove players and register teams in leagues.
+- *Match Overview*: Access team match schedules and results.
+
+### *3. League Managers*
+- *Dashboard*: Approve teams, manage matches, and oversee leagues.
+- *Match Scheduling*: Schedule new matches and update existing ones.
+- *Results Management*: Enter results and track league standings.
+
+### *4. Admins*
+- *Dashboard*: Manage users, leagues, and teams.
+- *Data Analysis*: Generate aggregated stats and manage logs.
+- *Database Management*: Execute SQL queries, stored procedures, and monitor triggers.
 
 ---
 
-### 5. **Admin Pages**
-   - **Admin Dashboard**: Overview of all leagues, matches, and user activities.
-   - **League Management**:
-     - **Add New League**: Admins can add new leagues and define sport types, rules, etc.
-     - **Manage All Leagues**: Allows viewing and managing all leagues and teams.
-   - **User Management**: Admins can view, add, update, or delete users and assign roles.
-   - **Data Analysis**:
-     - **Standings Overview**: A comprehensive view of standings across all leagues.
-     - **Match and Player Stats**: Aggregated stats of players and teams across leagues.
-   - **View Logs**: Displays action logs for auditing and tracking purposes.
+## Installation
+
+### *Prerequisites*
+- *Node.js* (v16 or newer)
+- *npm* or *Yarn*
+- *PostgreSQL* (v13 or newer)
+- *Docker* (optional, for containerized setup)
+
+### *1. Clone the Repository*
+bash
+git clone https://github.com/RO-HIT17/sports-league-management-system.git
+cd sports-league-management-system
+
+
+### *2. Backend Setup*
+1. Navigate to the backend directory:
+   bash
+   cd backend
+   
+2. Install dependencies:
+   bash
+   npm install
+   
+3. Configure environment variables in a .env file:
+   env
+   DATABASE_URL=postgres://username:password@localhost:5432/sports_db
+   JWT_SECRET=your_jwt_secret
+   
+4. Run database migrations:
+   bash
+   npm run migrate
+   
+5. Start the server:
+   bash
+   npm start
+   
+   The backend server will run on http://localhost:5000.
+
+### *3. Frontend Setup*
+1. Navigate to the frontend directory:
+   bash
+   cd frontend
+   
+2. Install dependencies:
+   bash
+   npm install
+   
+3. Configure environment variables in a .env file:
+   env
+   API_BASE_URL=http://localhost:5000
+   
+4. Start the development server:
+   bash
+   npm start
+   
+   The frontend application will run on http://localhost:3000.
 
 ---
 
-### 6. **SQL Requirement-Based Pages**
-   - **Data Query Page**:
-     - **Simple Queries**: Interface for admins to execute predefined queries.
-     - **Aggregate & Group Queries**: Displays aggregate results for entities like teams, players, and leagues.
-   - **Join Queries Page**:
-     - **Equi Join Results**: Shows data using equi-joins for team and player relationships.
-     - **Outer Joins**: Page to explore outer joins, especially for incomplete match records.
-   - **Stored Procedures and Functions Page**: Interface for admins to execute and review the output of stored procedures and functions.
-   - **Trigger Management Page**: For admins to view trigger logs and monitor database changes.
-   - **Views & Index Management**:
-     - **View Management**: For viewing large datasets, optimized by database views.
-     - **Index Stats**: Display usage statistics for indexed tables.
+## Usage
+
+### *Authentication*
+- *Players*: Register and log in to view personal dashboards and squad details.
+- *Team Managers*: Manage team registrations, players, and match schedules.
+- *League Managers*: Approve teams, schedule matches, and update results.
+- *Admins*: Manage all entities, analyze data, and execute SQL queries.
+
+### *Core Operations*
+- *Player Pages*: Track individual stats and view squads.
+- *Team Management*: Add/remove players and register teams in leagues.
+- *Match Scheduling*: Plan and update matches for approved teams.
+- *Standings and Results*: Monitor rankings and input match results.
 
 ---
 
-### **Navigation Structure**
-Based on roles and the above descriptions, here’s how each user would navigate:
+## Project Structure
 
-- **Player Navigation**:
-  - Home
-  - Squad View
-  - Player Profile
+### *Frontend*
+- */src/app*: Angular modules, components, and services.
+- */src/assets*: Static files like images and styles.
 
-- **Team Manager Navigation**:
-  - Home (Dashboard)
-  - Team Management (Add/Manage Players, Register Team)
-  - Match Overview
+### *Backend*
+- */src/controllers*: Route handlers.
+- */src/models*: Database entities.
+- */src/routes*: API routes.
 
-- **League Manager Navigation**:
-  - Home (Dashboard)
-  - Approve Teams
-  - Match Scheduling (Schedule/View Matches)
-  - Results Management (Update/View Results)
-  - League Standings
-  - League Management
-
-- **Admin Navigation**:
-  - Home (Dashboard)
-  - League Management (Add/View Leagues, View Teams)
-  - User Management
-  - Data Analysis (Standings, Match Stats)
-  - Data Queries (Simple, Aggregate, Join)
-  - Stored Procedures/Functions
-  - Trigger Management
-  - Views & Index Management
 
 ---
 
-### **Total Page List**
+## SQL Query Integration
 
-1. Login Page
-2. Register Page
-3. User Dashboard
-4. Player Dashboard
-5. Squad View
-6. Player Profile
-7. Team Manager Dashboard
-8. Add New Player
-9. Manage Players
-10. Register Team in League
-11. Match Overview
-12. League Manager Dashboard
-13. Approve Teams
-14. Schedule Matches
-15. View Schedule
-16. Update Results
-17. Match History
-18. League Standings
-19. Manage Leagues
-20. View All Teams
-21. Admin Dashboard
-22. Add New League
-23. Manage All Leagues
-24. User Management
-25. Standings Overview
-26. Match and Player Stats
-27. View Logs
-28. Simple Queries Page
-29. Aggregate Queries Page
-30. Equi Join Results Page
-31. Outer Joins Page
-32. Stored Procedures/Functions Page
-33. Trigger Management Page
-34. View Management
-35. Index Stats
+- *Simple Queries*: Predefined queries for quick data retrieval.
+- *Aggregate Queries*: Generate reports for teams, players, and leagues.
+- *Join Queries*: Explore relationships between players, teams, and leagues.
+- *Triggers*: Monitor and log database changes.
+- *Stored Procedures*: Execute reusable SQL procedures for specific tasks.
 
-**Total Pages: 35**
+---
+
+## Future Enhancements
+1. *Calendar Integration*: Sync match schedules with Google Calendar.
+2. *Advanced Analytics*: Include player heatmaps and performance trends.
+3. *Mobile App*: Build a mobile-friendly version for players and managers.
+
