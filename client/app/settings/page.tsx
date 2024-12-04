@@ -3,9 +3,7 @@ import { title } from "@/components/primitives";
 import React, { useState } from 'react';
 import { Input } from "@nextui-org/input";
 import { Spacer } from "@nextui-org/spacer";
-import { Switch } from "@nextui-org/switch";
-import { Button, ButtonGroup } from "@nextui-org/button";
-import { Card } from "@nextui-org/card";
+import { Button } from "@nextui-org/button";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/table";
 import { useRouter } from 'next/navigation';
@@ -24,7 +22,7 @@ export default function Settings() {
 
   const handleSave = () => {
     alert("Settings saved successfully!");
-    // Handle backend operations to update database
+    
   };
 
   const handleSignOut = () => {

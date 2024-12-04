@@ -82,7 +82,7 @@ const SquadView = () => {
           <h3>{team.team_name}</h3>
         </CardHeader>
         <CardBody>
-          {/* <h4 style={{ fontSize: '20px', color: 'green' }}>{team.team_name}</h4> */}
+          
           <p>Coach: {team.coach_name}</p>
           <Table aria-label="Players" css={{ height: 'auto', minWidth: '100%' }}>
             <TableHeader>

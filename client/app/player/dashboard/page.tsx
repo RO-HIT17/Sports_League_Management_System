@@ -165,11 +165,11 @@ const Dashboard = () => {
       </TableHeader>
       <TableBody>
         {recentMatches.map((match, index) => {
-          const isHome = match.match_type === 'Home'; // Check if it's a home match
+          const isHome = match.match_type === 'Home'; 
 
-          const opponent = isHome ? match.away_team : match.home_team; // Get opponent based on match type
-          const scoreLine = match.scoreline; // Format scoreline
-          const result = match.result; // Result (Win, Loss, Draw)
+          const opponent = isHome ? match.away_team : match.home_team; 
+          const scoreLine = match.scoreline;
+          const result = match.result; 
 
           return (
             <TableRow key={index}>

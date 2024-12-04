@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { redirect } from 'next/navigation';
 import { Input, Button, Card, CardHeader, CardBody, Spacer } from '@nextui-org/react';
 import { useRouter } from 'next/navigation'; 
 

@@ -19,7 +19,7 @@ const AddLeague = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch leagues
+    
     const fetchLeagues = async () => {
       try {
         const response = await fetch('http://localhost:5000/slms/league');
@@ -33,7 +33,7 @@ const AddLeague = () => {
       }
     };
 
-    // Fetch total players
+    
     const fetchTotalPlayers = async () => {
       try {
         const response = await fetch('http://localhost:5000/slms/player/count');
@@ -47,7 +47,7 @@ const AddLeague = () => {
       }
     };
 
-    // Fetch total teams
+    
     const fetchTotalTeams = async () => {
       try {
         const response = await fetch('http://localhost:5000/slms/team/count');

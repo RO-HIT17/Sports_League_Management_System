@@ -340,7 +340,6 @@ const TeamManager = () => {
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Players Table */}
 
       <Card style={{ marginBottom: '24px' }}>
         <CardHeader style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -516,7 +515,6 @@ const TeamManager = () => {
         </ModalContent>
       </Modal>
 
-      {/* Remove Player Confirmation Modal */}
       <Modal isOpen={isRemovePlayerModalOpen} onOpenChange={toggleRemovePlayerModal}>
         <ModalContent>
           <ModalHeader>Confirm Removal</ModalHeader>
@@ -537,7 +535,6 @@ const TeamManager = () => {
         </ModalContent>
       </Modal>
 
-      {/* Register League Modal */}
       <Modal
         isOpen={isRegisterLeagueModalOpen}
         onOpenChange={toggleRegisterLeagueModal}

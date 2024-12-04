@@ -17,9 +17,7 @@ import withAuth from "@/app/hoc/withAuth";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  TwitterIcon,
   GithubIcon,
-  DiscordIcon,
   Logo,
 } from "@/components/icons";
 import { User } from "@nextui-org/user";
